@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-
-import RxPHeader, RxPTimer, random, string, hashlib, thread, logging, cPickle, sys
+from rxpHeader import RxPHeader
+from rxpTimer import RxPTimer
+from rxpWindow import RxPWindow
+import random, string, hashlib, thread, logging, cPickle, sys
 from socket import *
 
 class RxP:
@@ -15,7 +17,7 @@ class RxP:
         self.cntBit = 0
         self.getBit = 0
         self.postBit = 0
-        self.rxpwindow =
+        self.rxpwindow = RxPWindow()
         self.rxpTimer = RxPTimer()
 
 
@@ -26,14 +28,14 @@ class RxP:
         self.send(None)
         self.rxpTimer.start()
 
-        while not self.getcntBit():
+        while not self.cntBit:
             if self.rxpTimer.isTimeout():
                 self.header.setSyn(True)
                 self.header.setSeqNum(0)
                 self.send(None)
                 self.rxpTimer.start()
 
-        while self.getcntBit():
+        while self.cntBit:
             if self.rxpTimer.isTimeout():
                 self.header.setSyn(False)
                 self.header.setSeqNum(1)
@@ -41,3 +43,33 @@ class RxP:
                 self.rxpTimer.start()
 
         self.header.setCnt(False)
+
+
+    def close(self):
+        self.header.setCnt(True)
+        self.header.setFin(True)
+        self.header.setSeqNum(0)
+        self.send(None)
+        self.rxpTimer.start()
+
+        while self.cntBit == 2:
+            if self.rxpTimer.isTimeout():
+                self.header.setFin(True)
+                self.header.setSeqNum(0)
+                self.send(None)
+                self.rxpTimer.start()
+
+        while self.cntBit == 3:
+            if self.rxpTimer.isTimeout():
+                self.header.setFin(False)
+                self.header.setSeqNum(1)
+                self.send(None)
+                self.rxpTimer.start()
+
+        self.header.setCnt(False)
+        self.reset()
+
+
+    def listen(self):
+        while True:
+            recvPacket, address = socket.recvfrom(1024)

@@ -3,10 +3,10 @@
 from time import time
 
 class RxPTimer:
+    timeout = 1
 
     def __init__(self):
         self.time = 0
-        self.timeout = 1
 
 
     def start(self):
@@ -18,7 +18,7 @@ class RxPTimer:
 
 
     def isTimeout(self):
-        if time() - self.time < self.timeout:
+        if time() - self.time < RxPTimer.timeout:
             return False
         else:
             return True
