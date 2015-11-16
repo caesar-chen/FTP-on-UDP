@@ -80,4 +80,117 @@ class RxPHeader:
             self.get = True
         if (self.header[13] & 0x80) == 0x80:
             self.post = True
-        self.checksum = self.header[14] << 8 | (0 | 0xFF) & self.header[15];
+        self.checksum = self.header[14] << 8 | (0 | 0xFF) & self.header[15]
+
+
+    def getHeader(self):
+        self.setHeader()
+        return self.header
+
+
+    def setHeaderFromBytes(self, header):
+        self.header = header
+
+
+    def getSourcePort(self):
+        return self.sourcePort
+
+
+    def setSourcePort(self, srcPort):
+        self.sourcePort = srcPort
+
+
+    def getDestPort(self):
+        return self.destPort
+
+
+    def setDestPort(self, destPort):
+        self.destPort = destPort
+
+
+    def getSeqNum(self):
+        return self.seqNum
+
+
+    def setSeqNum(self, seqNum):
+        self.seqNum = seqNum
+
+
+    def getAckNum(self):
+        return self.ackNum
+
+
+    def setAckNum(self, ackNum):
+        self.ackNum = ackNum
+
+
+    def isDat(self):
+        return self.dat
+
+
+    def setDat(self, dat):
+        self.dat = dat
+
+
+    def isAck(self):
+        return self.ack
+
+
+    def setAck(self, ack):
+        self.ack = ack
+
+
+    def isEnd(self):
+        return self.end
+
+
+    def setEnd(self, end):
+        self.end = end
+
+
+    def isCnt(self):
+        return self.cnt
+
+
+    def setCnt(self, cnt):
+        self.cnt = cnt
+
+
+    def isSyn(self):
+        return self.syn
+
+
+    def setSyn(self, syn):
+        self.syn = syn
+
+
+    def isFin(self):
+        return self.fin
+
+
+    def setFin(self, fin):
+        self.fin = fin
+
+
+    def isGet(self):
+        return self.get
+
+
+    def setGet(self, get):
+        self.get = get
+
+
+    def isPost(self):
+        return self.post
+
+
+    def setPost(self, post):
+        self.post = post
+
+
+    def getChecksum(self):
+        return self.checksum
+
+
+    def setChecksum(self, checksum):
+        self.checksum = checksum

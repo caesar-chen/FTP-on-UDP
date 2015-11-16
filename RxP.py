@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import random, string, hashlib, thread, logging, cPickle, sys
+import RxPHeader, random, string, hashlib, thread, logging, cPickle, sys
 from socket import *
 
 class RxP:
@@ -11,7 +11,7 @@ class RxP:
         self.hostPort = hostPort
         self.destPort = destPort
         self.socket = socket(AF_INET, SOCK_DGRAM)
-        self.header =
+        self.header = RxPHeader(hostPort, destPort, 0, 0)
         self.cntBit = 0
         self.getBit = 0
         self.postBit = 0
@@ -19,4 +19,4 @@ class RxP:
 
 
     def connect(self):
-        header.setCnt()
+        self.header.setCnt()
