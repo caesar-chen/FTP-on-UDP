@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import RxPHeader, random, string, hashlib, thread, logging, cPickle, sys
+import RxPHeader, RxPTimer, random, string, hashlib, thread, logging, cPickle, sys
 from socket import *
 
 class RxP:
@@ -16,7 +16,7 @@ class RxP:
         self.getBit = 0
         self.postBit = 0
         self.rxpwindow =
-        self.rxpTimer =
+        self.rxpTimer = RxPTimer()
 
 
     def connect(self):
@@ -24,6 +24,20 @@ class RxP:
         self.header.setSyn(True)
         self.header.setSeqNum(0)
         self.send(None)
+        self.rxpTimer.start()
 
         while not self.getcntBit():
-            if
+            if self.rxpTimer.isTimeout():
+                self.header.setSyn(True)
+                self.header.setSeqNum(0)
+                self.send(None)
+                self.rxpTimer.start()
+
+        while self.getcntBit():
+            if self.rxpTimer.isTimeout():
+                self.header.setSyn(False)
+                self.header.setSeqNum(1)
+                self.send(None)
+                self.rxpTimer.start()
+
+        self.header.setCnt(False)

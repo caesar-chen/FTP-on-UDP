@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import time
+from time import time
 
 class RxPTimer:
 
@@ -10,15 +10,15 @@ class RxPTimer:
 
 
     def start(self):
-        self.time = time.time()
+        self.time = time()
 
 
     def getTime(self):
-        return self.time - time.time()
+        return self.time - time()
 
 
     def isTimeout(self):
-        if time.time() - self.time < self.timeout:
+        if time() - self.time < self.timeout:
             return False
         else:
             return True
