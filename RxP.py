@@ -16,7 +16,14 @@ class RxP:
         self.getBit = 0
         self.postBit = 0
         self.rxpwindow =
+        self.rxpTimer =
 
 
     def connect(self):
-        self.header.setCnt()
+        self.header.setCnt(True)
+        self.header.setSyn(True)
+        self.header.setSeqNum(0)
+        self.send(None)
+
+        while not self.getcntBit():
+            if
