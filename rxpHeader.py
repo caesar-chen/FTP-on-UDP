@@ -57,7 +57,8 @@ class RxPHeader:
         self.header[15] = self.checksum & 0xFF
 
         return self.header
-
+    
+    #headerFromArray
     def headerFromBytes(self, header):
         self.sourcePort = (self.header[0] << 8 | (0 | 0xFF)) & self.header[1]
         self.destPort = (self.header[2] << 8 | (0 | 0xFF)) & self.header[3]
@@ -123,7 +124,7 @@ class RxPHeader:
     def setAckNum(self, ackNum):
         self.ackNum = ackNum
 
-
+    
     def isDat(self):
         return self.dat
 
@@ -194,3 +195,6 @@ class RxPHeader:
 
     def setChecksum(self, checksum):
         self.checksum = checksum
+
+    def getHeaderLen():
+        return headerLen
