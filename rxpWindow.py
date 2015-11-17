@@ -23,3 +23,15 @@ class RxPWindow:
 
     def setEndWindow(self, e):
         self.endWindow = e
+    
+    def getNextToSend():
+        return nextToSend
+        
+    def getWindowSize():
+        return windowSize
+        
+    def getStartWindow():
+        return startWindow
+        
+    def getEndWindow():
+        return endWindow
