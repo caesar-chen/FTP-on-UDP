@@ -20,6 +20,7 @@ class RxP:
         self.rxpwindow = RxPWindow()
         self.rxpTimer = RxPTimer()
 
+    ## Do we need initial()?
 
     def connect(self):
         self.header.setCnt(True)
