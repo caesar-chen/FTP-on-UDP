@@ -14,8 +14,6 @@ from sendthread import SendThread
  #  Window (w) - change window size, default window size = 2
  #  Disconnect - close the connection
 
-
-
 def main():
 
     rxpProtocol = None
@@ -51,7 +49,7 @@ def main():
     log = "output-client.txt"
 
     #execute user's commend
-    #可以改
+    #可以改 "argument"
     while (True):
         time.sleep(.500)
         Sinput = input("type connect - to establish connection \n"
@@ -62,12 +60,7 @@ def main():
         if Sinput.__eq__("connect"):
             rxpProtocol = RxP(serverIP, netEmuPort, clientPort, desPort, log)
             clientProtocol = RecvThread(rxpProtocol)
-
-            #need discuss
-            #是不是把recvthread里面的method放进来
-            #thread.start_new_thread(_handler, (connectionSocket, addr))
-            #clientProtocol.start()
-
+            thread.start_new_thread(clientProtocol.run(), ())
             rxpProtocol.connect()
         else if "get" in Sinput:
             if rxpProtocol != None:
@@ -77,11 +70,7 @@ def main():
             if rxpProtocol != None:
                 s = Sinput.split("\\s")
                 sendThread = SendThread(rxpProtocol, s[1])
-
-                #need discuss
-                #是不是把recvthread里面的method放进来
-                #thread.start_new_thread(_handler, (connectionSocket, addr))
-                #clientProtocol.start()
+                thread.start_new_thread(sendThread.run(), ())
         else if "window" in Sinput:
             if rxpProtocol != None:
                 s = Sinput.split("\\s")
@@ -90,15 +79,10 @@ def main():
         else if Sinput.__eq__("disconnect"):
             if rxpProtocol != None:
                 rxpProtocol.close()
-
-                #need discuss
                 ##stop clientProtocol
-
-                if sendThread != None:
-                    #need discuss
+                ##if sendThread != None:
                     ##stop sendThread
                 rxpProtocol.getSocket().close()
-
 
 if __name__ == "__main__":
     main()

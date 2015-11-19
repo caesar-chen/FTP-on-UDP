@@ -7,12 +7,10 @@ from recvthread import RecvThread
 from sendthread import SendThread
 
  #  FxAServer
- #  
  #  deals with the server side command line arguments and supports the following functions:
  #  start server
  #  Window (w) - change window size, default window size = 2
  #  terminate - terminate the server
-
 
 def main():
 
@@ -49,28 +47,22 @@ def main():
     rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
 
     serverProtocol = RecvThread(rxpProtocol)
-    #need discuss
-    #是不是把recvthread里面的method放进来
-    #thread.start_new_thread(_handler, (connectionSocket, addr))
-    #serverProtocol.start()
+    thread.start_new_thread(serverProtocol.run(), ())
 
     #execute user's commend
-    #可以改
+    #可以改 "argument"
     while (True):
         Sinput = input("type Window W - to change the window size \n"
                     + "terminate - to terminate the server")
 
         if "window" in Sinput:
             s = Sinput.split("\\s")
-            wsize = s[1]
+            wsize = (int)s[1]
             rxpProtocol.setWindowSize(wsize)
         else if Sinput.__eq__("terminate"):
             rxpProtocol.close()
-
-            #need discuss
             #close serverProtocol
-
-            for t in rxpProtocol.getThreadList():
+            #for t in rxpProtocol.getThreadList():
                 #need discuss
                 #close t
             rxpProtocol.getSocket().close()
