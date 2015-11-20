@@ -265,8 +265,11 @@ class RxP:
                 content = self.getContent(packet)
                 filename = self.bytesToString(content)
                 self.getBit = 1
-                ###### !!!!
+                # thread problem?
                 self.threads.append(thread.start_new_thread(self.postFile(filename)))
+            self.header.get = True
+            self.sendAck()
+            self.header.get = False
 
     def recvPostPkt(self, packet):
         tmpHeader = self.getHeader(packet)
@@ -355,23 +358,3 @@ class RxP:
 
     def bytesToString(self, data):
         return data.decode("utf-8")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
