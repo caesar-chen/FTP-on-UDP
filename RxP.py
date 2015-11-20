@@ -5,6 +5,7 @@ from rxpTimer import RxPTimer
 from rxpWindow import RxPWindow
 from socket import *
 from collections import deque
+from crc import crc16xmodem
 import thread
 
 
@@ -30,11 +31,13 @@ class RxP:
         self.threads = []
 
     def connect(self):
+        print 'start to connect'
         self.header.cnt = True
         self.header.syn = True
         self.header.seqNum = 0
         self.send(None)
         self.rxpTimer.start()
+        print 'Send first msg[SYN=1].'
 
         while not self.cntBit:
             if self.rxpTimer.isTimeout():
@@ -77,8 +80,9 @@ class RxP:
         self.reset()
 
     def listen(self):
+        print 'start to listen'
         while True:
-            recvPacket, address = socket.recvfrom(1024)
+            recvPacket, address = self.socket.recvfrom(1024)
 
             if self.validateChecksum(recvPacket):
                 tempHeader = self.getHeader(recvPacket)
@@ -127,6 +131,8 @@ class RxP:
 
     def send(self, data):
         self.header.ack = False
+        print 'start to send'
+
         datagram = self.pack(self.header.getHeader(), data)
         datagram = self.addChecksum(datagram)
         self.socket.sendto(datagram, (self.serverAddress, self.netEmuPort))
@@ -146,7 +152,7 @@ class RxP:
 
     def pack(self,header, data):
         if data:
-            result = header.extend(data)
+            result = header.append(data)
             return result
         else:
             return header
@@ -360,23 +366,19 @@ class RxP:
         return data.decode("utf-8")
 
     def addChecksum(self, packet, bits = 8):
-        crc = 0xFFFF
-        res = packet.decode("utf-8")
-        for op, code in zip(res[0::2], res[1::2]):
-            crc = crc ^ int(op + code, 16)
-            for bit in range(0 , bits):
-                if (crc & 0x0001)  == 0x0001:
-                    crc = ((crc >> 1) ^ 0xA001)
-                else:
-                    crc = crc >> 1
-        msb = crc >> 8
-        lsb = crc & 0x00FF
-        packet.append(msb)
-        packet.append(lsb)
+        print 'add checksum'
+        data = ''
+        for byte in packet:
+            data += str(byte)
+        checksum = crc16xmodem(data)
+        print checksum
+        packet[14] = checksum >> 8
+        packet[15] = checksum & 0xFF
+        print 'finish cs'
         return packet
 
-    def validateChecksum(self, packet, bits = 8):
-        bool correct = False
+    def validateChecksum(self, packet):
+        correct = False
         crc = 0xFFFF
         res = packet.decode("utf-8")
         for op, code in zip(res[0::2], res[1::2]):
@@ -390,4 +392,5 @@ class RxP:
         lsb = crc & 0x00FF
         if msb == packet[14] and lsb == packet[15]:
             correct = True
+        print 'checksum result'
         return correct

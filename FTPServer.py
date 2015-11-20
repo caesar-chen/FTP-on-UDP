@@ -50,16 +50,15 @@ def main():
     thread.start_new_thread(serverProtocol.run(), ())
 
     #execute user's commend
-    #可以改 "argument"
     while (True):
-        Sinput = input("type Window W - to change the window size \n"
+        Sinput = raw_input("type Window W - to change the window size \n"
                     + "terminate - to terminate the server")
 
         if "window" in Sinput:
             s = Sinput.split("\\s")
-            wsize = (int)s[1]
+            wsize = int(s[1])
             rxpProtocol.setWindowSize(wsize)
-        else if Sinput.__eq__("terminate"):
+        elif Sinput.__eq__("terminate"):
             rxpProtocol.close()
             #close serverProtocol
             #for t in rxpProtocol.getThreadList():

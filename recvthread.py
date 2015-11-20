@@ -8,6 +8,7 @@ class RecvThread:
     #not sure what exception listen() will have
     def run(self):
         try:
+            print 'start to run'
             self.rxp.listen()
         except IOError as e:
             print ("I/O error({0}): {1}".format(e.errno, e.strerror))

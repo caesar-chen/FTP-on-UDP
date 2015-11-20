@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, hashlib, logging, cPickle, time, thread
+import time, threading, sys
 from socket import *
 from RxP import RxP
 from recvthread import RecvThread
@@ -49,34 +49,35 @@ def main():
     log = "output-client.txt"
 
     #execute user's commend
-    #可以改 "argument"
     while (True):
         time.sleep(.500)
-        Sinput = input("type connect - to establish connection \n"
+        Sinput = raw_input("type connect - to establish connection \n"
                     + "get 'filename' - to download the file from server \n"
                     + "post 'filename' - to upload the file to server \n"
                     + "Window W - to change the window size \n"
-                    + "disconnect - to close the connection")
+                    + "disconnect - to close the connection\n")
         if Sinput.__eq__("connect"):
             rxpProtocol = RxP(serverIP, netEmuPort, clientPort, desPort, log)
             clientProtocol = RecvThread(rxpProtocol)
-            thread.start_new_thread(clientProtocol.run(), ())
+            thread = threading.Thread(target=clientProtocol.run)
+            print "4"
+            thread.start()
             rxpProtocol.connect()
-        else if "get" in Sinput:
+        elif "get" in Sinput:
             if rxpProtocol != None:
                 s = Sinput.split("\\s")
                 rxpProtocol.getFile(s[1])
-        else if "post" in Sinput:
+        elif "post" in Sinput:
             if rxpProtocol != None:
                 s = Sinput.split("\\s")
                 sendThread = SendThread(rxpProtocol, s[1])
                 thread.start_new_thread(sendThread.run(), ())
-        else if "window" in Sinput:
+        elif "window" in Sinput:
             if rxpProtocol != None:
                 s = Sinput.split("\\s")
                 window = int(s[1])
                 rxpProtocol.setWindowSize(window)
-        else if Sinput.__eq__("disconnect"):
+        elif Sinput.__eq__("disconnect"):
             if rxpProtocol != None:
                 rxpProtocol.close()
                 ##stop clientProtocol

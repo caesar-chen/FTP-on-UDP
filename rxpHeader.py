@@ -19,7 +19,6 @@ class RxPHeader:
         self.checksum = 0
         self.header = bytearray()
 
-
     def setHeader(self):
         self.header.append(self.sourcePort >> 8)
         self.header.append(self.sourcePort & 0xFF)
@@ -55,7 +54,6 @@ class RxPHeader:
 
         self.header.append(self.checksum >> 8)
         self.header.append(self.checksum & 0xFF)
-
         return self.header
     
     #headerFromArray
@@ -84,49 +82,7 @@ class RxPHeader:
         self.checksum = header[14] << 8 | (0 | 0xFF) & header[15]
 
     def getHeader(self):
-        self.setHeader()
-        return self.header
+        return self.setHeader()
 
     def setHeaderFromBytes(self, header):
         self.header = header
-
-    def setSourcePort(self, srcPort):
-        self.sourcePort = srcPort
-
-    def setDestPort(self, destPort):
-        self.destPort = destPort
-
-    def setSeqNum(self, seqNum):
-        self.seqNum = seqNum
-
-    def setAckNum(self, ackNum):
-        self.ackNum = ackNum
-
-    def setDat(self, dat):
-        self.dat = dat
-
-    def setAck(self, ack):
-        self.ack = ack
-
-    def setEnd(self, end):
-        self.end = end
-
-    def setCnt(self, cnt):
-        self.cnt = cnt
-
-    def setSyn(self, syn):
-        self.syn = syn
-
-
-    def setFin(self, fin):
-        self.fin = fin
-
-    def setGet(self, get):
-        self.get = get
-
-    def setPost(self, post):
-        self.post = post
-
-    def setChecksum(self, checksum):
-        self.checksum = checksum
-

@@ -8,7 +8,8 @@ class SendThread:
 
         #not sure what exception listen() will have
     def run(self):
+        print 'start postfile'
         try:
-            self.rxp.postFile(filename)
+            self.rxp.postFile(self.filename)
         except IOError as e:
             print ("I/O error({0}): {1}".format(e.errno, e.strerror))

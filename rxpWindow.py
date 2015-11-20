@@ -7,19 +7,3 @@ class RxPWindow:
         self.startWindow = 0
         self.endWindow = self.windowSize - 1
         self.nextToSend = 0
-
-
-    def setNextToSend(self, next):
-        self.nextToSend = next
-
-
-    def setWindowSize(self, size):
-        self.windowSize = size
-
-
-    def setStartWindow(self, s):
-        self.startWindow = s
-
-
-    def setEndWindow(self, e):
-        self.endWindow = e
