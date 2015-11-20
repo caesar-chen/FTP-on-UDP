@@ -5,7 +5,7 @@ from rxpTimer import RxPTimer
 from rxpWindow import RxPWindow
 from socket import *
 from collections import deque
-import string, thread, logging, sys
+import thread
 
 
 class RxP:
@@ -120,7 +120,7 @@ class RxP:
                     self.header.get = False
                     print 'Re-send Get initialize msg.'
                     self.rxpTimer.start()
-                print 'Start receiving file.'
+            print 'Start receiving file.'
 
         else:
             print 'No connection'
@@ -153,58 +153,71 @@ class RxP:
 
     def postFile(self, filename):
         if self.cntBit == 2:
-            file = open(filename, "rb")
-            fileBytes = bytearray(file.read())
-            self.header.get = True
+            nameBytes = bytearray(filename)
+            self.header.post = True
             self.header.seqNum = 0
-            self.send(fileBytes)
-            self.header.get = False
+            self.send(nameBytes)
+            self.header.post = False
             print 'Sending Post initialize msg.'
             self.rxpTimer.start()
 
             while self.postBit == 0:
                 if self.rxpTimer.isTimeout():
-                    self.header.get = True
+                    self.header.post = True
                     self.header.seqNum = 0
-                    self.send(fileBytes)
-                    self.header.get = False
+                    self.send(nameBytes)
+                    self.header.post = False
                     print 'Re-send Post initialize msg.'
                     self.rxpTimer.start()
 
             self.transTimer.start()
-            fileSize = 0
+            file = open(filename, "rb")
+            fileBytes = bytearray(file.read())
             bufferSize = RxP.dataMax - RxPHeader.headerLen
+            fileSize = len(fileBytes)
+            fileIndex = 0
             self.rxpTimer.start()
 
-            while
+            while fileIndex < fileSize or len(self.buffer) > 0:
                 if self.rxpTimer.isTimeout():
                     self.rxpWindow.nextToSend = self.rxpWindow.startWindow
                     self.rxpTimer.start()
-                    ############# need fixing
+                    for i in range(len(self.buffer)):
+                        if fileIndex >= fileSize:
+                            if i == len(self.buffer) - 1:
+                                self.header.end = True
+                            seq = self.rxpWindow.nextToSend
+                            self.header.seqNum = seq
+                            self.header.dat = True
+                            self.send(self.buffer[i])
+                            self.header.dat = False
+                            self.header.end = False
+                            self.rxpWindow.nextToSend = seq + 1
 
-                    for data in self.buffer:
-                        # if end then...
-                        self.header.end = True
+                if self.rxpWindow.nextToSend <= self.rxpWindow.endWindow and fileIndex < fileSize:
+                    data = []
+                    if fileIndex + bufferSize > fileSize:
+                        data = fileBytes[fileIndex:fileSize]
+                    else:
+                        data = fileBytes[fileIndex:fileIndex + bufferSize]
+                    fileIndex += bufferSize
 
-                        seq = self.rxpWindow.nextToSend
-                        self.header.seqNum = seq
-                        self.header.dat = True
-                        self.send(data)
-                        self.header.dat = False
-                        self.header.end = False
-                        self.rxpWindow.nextToSend = seq + 1
-
-                ############## need fixing
-                if self.rxpWindow.nextToSend <= self.rxpWindow.endWindow && something:
-                    fileSize += bufferSize
-                    ##### need fixing
+                if fileIndex >= fileSize:
+                    self.header.end = True
+                seq = self.rxpWindow.nextToSend
+                self.header.seqNum = seq
+                self.header.dat = True
+                self.send(data)
+                self.header.dat = False
+                self.header.end = False
+                self.rxpWindow.nextToSend = seq + 1
+                self.buffer.append(data)
 
             file.close()
             transTime = self.transTimer.time
             self.postBit = 0
             self.getBit = 0
             self.header.end = False
-
         else:
             print 'No connection'
 
@@ -255,6 +268,85 @@ class RxP:
                 ###### !!!!
                 self.threads.append(thread.start_new_thread(self.postFile(filename)))
 
+    def recvPostPkt(self, packet):
+        tmpHeader = self.getHeader(packet)
+        seq = tmpHeader.seqNum
+        self.header.ackNum = seq
+
+        if tmpHeader.post == 0:
+            if tmpHeader.ack:
+                self.postBit = 1
+            else:
+                content = self.getContent(packet)
+                filename = self.bytesToString(content)
+                self.output = open(filename, "ab")
+                self.header.post = True
+                self.sendAck()
+                self.header.post = False
+
+    def recvCntPkt(self, packet):
+        tmpHeader = self.getHeader(packet)
+        seq = tmpHeader.seqNum
+        self.header.ackNum = seq
+
+        if self.cntBit == 0:
+            if tmpHeader.syn:
+                print 'Received connection initializing msg [SYN=1]'
+                self.header.cnt = True
+                self.sendAck()
+                self.cntBit = 1
+            elif self.header.syn and tmpHeader.ack:
+                self.header.syn = False
+                self.header.seqNum = 1
+                self.send(None)
+                print 'Received first SYN ack, sending second msg[SYN=0].'
+                self.cntBit = 1
+            elif not tmpHeader.fin and not tmpHeader.ack:
+                self.header.cnt = True
+                self.sendAck()
+                self.header.cnt = False
+        elif self.cntBit == 1:
+            if not tmpHeader.ack and not tmpHeader.syn:
+                self.cntBit = 2
+                self.sendAck()
+                self.header.cnt = False
+                print 'Connection established'
+            if not tmpHeader.seqNum and tmpHeader.syn:
+                self.header.cnt = True
+                self.sendAck()
+                self.header.cnt = False
+            if tmpHeader.ack:
+                self.cntBit = 2
+        elif self.cntBit == 2:
+            if tmpHeader.fin:
+                print 'Received connection closing msg [FIN=1]'
+                self.header.cnt = True
+                self.sendAck()
+                self.cntBit = 3
+            elif self.header.fin and tmpHeader.ack:
+                self.header.fin = False
+                self.header.seqNum = 1
+                self.send(None)
+                print 'Received first FIN ack, sending second msg[FIN=0]'
+                self.cntBit = 3
+            elif not tmpHeader.ack and not tmpHeader.syn:
+                self.header.cnt = True
+                self.sendAck()
+                self.header.cnt = False
+        elif self.cntBit == 3:
+            if not tmpHeader.ack and not tmpHeader.fin:
+                self.cntBit = 0
+                self.sendAck()
+                self.header.cnt = False
+                self.reset()
+                print 'Connection Close'
+            elif not tmpHeader.seqNum and tmpHeader.fin:
+                self.header.cnt = True
+                self.sendAck()
+                self.header.cnt = False
+            elif tmpHeader.ack:
+                self.cntBit = 0
+
     def setWindowSize(self, windowSize):
         if self.cntBit == 2:
             self.rxpWindow.windowSize = windowSize
@@ -263,9 +355,6 @@ class RxP:
 
     def bytesToString(self, data):
         return data.decode("utf-8")
-
-
-
 
     def addChecksum(self, packet, bits = 8):
         crc = 0xFFFF
