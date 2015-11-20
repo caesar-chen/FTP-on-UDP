@@ -358,3 +358,36 @@ class RxP:
 
     def bytesToString(self, data):
         return data.decode("utf-8")
+
+    def addChecksum(self, packet, bits = 8):
+        crc = 0xFFFF
+        res = packet.decode("utf-8")
+        for op, code in zip(res[0::2], res[1::2]):
+            crc = crc ^ int(op + code, 16)
+            for bit in range(0 , bits):
+                if (crc & 0x0001)  == 0x0001:
+                    crc = ((crc >> 1) ^ 0xA001)
+                else:
+                    crc = crc >> 1
+        msb = crc >> 8
+        lsb = crc & 0x00FF
+        packet.append(msb)
+        packet.append(lsb)
+        return packet
+
+    def validateChecksum(self, packet, bits = 8):
+        bool correct = False
+        crc = 0xFFFF
+        res = packet.decode("utf-8")
+        for op, code in zip(res[0::2], res[1::2]):
+            crc = crc ^ int(op + code, 16)
+            for bit in range(0 , bits):
+                if (crc & 0x0001)  == 0x0001:
+                    crc = ((crc >> 1) ^ 0xA001)
+                else:
+                    crc = crc >> 1
+        msb = crc >> 8
+        lsb = crc & 0x00FF
+        if msb == packet[14] and lsb == packet[15]:
+            correct = True
+        return correct
