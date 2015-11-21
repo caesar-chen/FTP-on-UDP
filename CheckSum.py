@@ -2,7 +2,9 @@ from crc import crc16xmodem
 
 def addChecksum(self, packet):
     data = ''
-    for byte in packet[0:14]:
+    packet[14] = 0
+    packet[15] = 0
+    for byte in packet:
         data += str(byte)
     checksum = crc16xmodem(data)
     packet[14] = checksum >> 8
@@ -12,12 +14,16 @@ def addChecksum(self, packet):
 def validateChecksum(self, packet):
     correct = False
     data = ''
-    for byte in packet[0:14]:
+    firstB = packet[14]
+    secondB = packet[15]
+    packet[14] = 0
+    packet[15] = 0
+    for byte in packet:
         data += str(byte)
     checksum = crc16xmodem(data)
     msb = checksum >> 8
     lsb = checksum & 0xFF
-    if msb == packet[14] and lsb == packet[15]:
+    if msb == firstB and lsb == secondB:
         correct = True
     return correct
 
