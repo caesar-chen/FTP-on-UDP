@@ -68,7 +68,6 @@ def main():
         elif "get" in Sinput:
             if rxpProtocol != None:
                 s = Sinput.split()
-                print type(s[1])
                 rxpProtocol.getFile(s[1])
         elif "post" in Sinput:
             if rxpProtocol != None:

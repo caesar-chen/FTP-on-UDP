@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, time, threading
+import sys, threading
 from socket import *
 from RxP import RxP
 from recvthread import RecvThread
@@ -55,7 +55,7 @@ def main():
                     + "terminate - to terminate the server")
 
         if "window" in Sinput:
-            s = Sinput.split("\\s")
+            s = Sinput.split()
             wsize = int(s[1])
             rxpProtocol.setWindowSize(wsize)
         elif Sinput.__eq__("terminate"):

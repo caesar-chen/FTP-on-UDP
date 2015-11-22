@@ -3,7 +3,7 @@
 class RxPHeader:
     headerLen = 16
 
-    def __init__(self, sourcePort=-1, destPort=-1, seqNum=-1, ackNum=-1):
+    def __init__(self, sourcePort=-1, destPort=-1, seqNum=0, ackNum=0):
         self.sourcePort = sourcePort
         self.destPort = destPort
         self.seqNum = seqNum

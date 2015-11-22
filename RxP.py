@@ -142,13 +142,7 @@ class RxP:
             print 'No connection'
 
     def send(self, data):
-        print '>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-        print self.header.cnt
-        print self.header.syn
-        print self.header.post
-        print self.header.dat
-        print 'sending seq: %d' % self.header.seqNum
-        print '<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+        print 'sending seq#: %d' % self.header.seqNum
         self.header.ack = False
         datagram = self.pack(self.header.getHeader(), data)
         datagram = self.addChecksum(datagram)
@@ -156,10 +150,6 @@ class RxP:
 
     def sendAck(self):
         print '>>>>>>>>>>>'
-        print self.header.cnt
-        print self.header.syn
-        print self.header.post
-        print self.header.dat
         print 'ack packet seq: %d' % self.header.seqNum
         print 'acking num: %d' %self.header.ackNum
         print '<<<<<<<<<<<'
