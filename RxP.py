@@ -7,7 +7,7 @@ from sendthread import SendThread
 from socket import *
 from collections import deque
 from crc import crc16xmodem
-import threading
+import threading, unicodedata
 
 
 class RxP:
@@ -305,7 +305,8 @@ class RxP:
         else:
             if self.getBit == 0:
                 content = self.getContent(packet)
-                filename = self.bytesToString(content)
+                uniFilename = self.bytesToString(content)
+                filename = unicodedata.normalize('NFKD', uniFilename).encode('utf-8','ignore')
                 self.getBit = 1
                 sendTread = SendThread(self, filename)
                 stopEvent = threading.Event()
@@ -411,7 +412,7 @@ class RxP:
             print 'Please initialize connection first.'
 
     def bytesToString(self, data):
-        return data.decode("utf-8")
+        return data.decode('utf-8')
 
     def addChecksum(self, packet):
         data = ''
