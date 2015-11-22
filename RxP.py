@@ -221,13 +221,13 @@ class RxP:
                             if i == len(self.buffer) - 1:
                                 print 'set end of file'
                                 self.header.end = True
-                            seq = self.rxpWindow.nextToSend
-                            self.header.seqNum = seq
-                            self.header.dat = True
-                            self.send(self.buffer[i])
-                            self.header.dat = False
-                            self.header.end = False
-                            self.rxpWindow.nextToSend = seq + 1
+                        seq = self.rxpWindow.nextToSend
+                        self.header.seqNum = seq
+                        self.header.dat = True
+                        self.send(self.buffer[i])
+                        self.header.dat = False
+                        self.header.end = False
+                        self.rxpWindow.nextToSend = seq + 1
 
                 if self.rxpWindow.nextToSend <= self.rxpWindow.endWindow and fileIndex < fileSize:
                     data = []
