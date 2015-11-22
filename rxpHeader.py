@@ -17,23 +17,23 @@ class RxPHeader:
         self.get = False
         self.post = False
         self.checksum = 0
-        self.header = bytearray()
+        self.header = bytearray(16)
 
     def setHeader(self):
-        self.header.append(self.sourcePort >> 8)
-        self.header.append(self.sourcePort & 0xFF)
-        self.header.append(self.destPort >> 8)
-        self.header.append(self.destPort & 0xFF)
-        self.header.append(self.seqNum >> 24)
-        self.header.append(self.seqNum >> 16)
-        self.header.append(self.seqNum >> 8)
-        self.header.append(self.seqNum & 0xFF)
-        self.header.append(self.ackNum >> 24)
-        self.header.append(self.ackNum >> 16)
-        self.header.append(self.ackNum >> 8)
-        self.header.append(self.ackNum & 0xFF)
-        self.header.append(RxPHeader.headerLen)
-        self.header.append(0)
+        self.header[0] = self.sourcePort >> 8
+        self.header[1] = self.sourcePort & 0xFF
+        self.header[2] = self.destPort >> 8
+        self.header[3] = self.destPort & 0xFF
+        self.header[4] = self.seqNum >> 24
+        self.header[5] = self.seqNum >> 16
+        self.header[6] = self.seqNum >> 8
+        self.header[7] = self.seqNum & 0xFF
+        self.header[8] = self.ackNum >> 24
+        self.header[9] = self.ackNum >> 16
+        self.header[10] = self.ackNum >> 8
+        self.header[11] = self.ackNum & 0xFF
+        self.header[12] = RxPHeader.headerLen & 0xFF
+        self.header[13] = 0
 
         if self.fin:
             self.header[13] = self.header[13] | 0x1
@@ -52,8 +52,8 @@ class RxPHeader:
         if self.post:
             self.header[13] = self.header[13] | 0x80
 
-        self.header.append(self.checksum >> 8)
-        self.header.append(self.checksum & 0xFF)
+        self.header[14] = self.checksum >> 8
+        self.header[15] = self.checksum & 0xFF
         return self.header
     
     #headerFromArray

@@ -44,12 +44,15 @@ def main():
     #Dest. port number
     desPort = clientPort + 1
 
-    clientProtocol = None
-    sendThread = None
     log = "output-client.txt"
 
+    connThread = None
+    connStop = threading.Event()
+    sThread = None
+    sStop = threading.Event()
+
     #execute user's commend
-    while (True):
+    while True:
         time.sleep(.500)
         Sinput = raw_input("type connect - to establish connection \n"
                     + "get 'filename' - to download the file from server \n"
@@ -59,31 +62,32 @@ def main():
         if Sinput.__eq__("connect"):
             rxpProtocol = RxP(serverIP, netEmuPort, clientPort, desPort, log)
             clientProtocol = RecvThread(rxpProtocol)
-            thread = threading.Thread(target=clientProtocol.run)
-            print "4"
-            thread.start()
+            connThread = threading.Thread(target=clientProtocol.run, args=(connStop,))
+            connThread.start()
             rxpProtocol.connect()
         elif "get" in Sinput:
             if rxpProtocol != None:
-                s = Sinput.split("\\s")
+                s = Sinput.split()
                 rxpProtocol.getFile(s[1])
         elif "post" in Sinput:
             if rxpProtocol != None:
-                s = Sinput.split("\\s")
+                s = Sinput.split()
                 sendThread = SendThread(rxpProtocol, s[1])
-                thread.start_new_thread(sendThread.run(), ())
+                sThread = threading.Thread(target=sendThread.run, args=(sStop,))
+                sThread.start()
         elif "window" in Sinput:
             if rxpProtocol != None:
-                s = Sinput.split("\\s")
+                s = Sinput.split()
                 window = int(s[1])
                 rxpProtocol.setWindowSize(window)
         elif Sinput.__eq__("disconnect"):
             if rxpProtocol != None:
                 rxpProtocol.close()
-                ##stop clientProtocol
-                ##if sendThread != None:
-                    ##stop sendThread
-                rxpProtocol.getSocket().close()
+                connStop.set()
+
+                # if sThread != None:
+                #     stop sendThread
+                rxpProtocol.socket.close()
 
 if __name__ == "__main__":
     main()

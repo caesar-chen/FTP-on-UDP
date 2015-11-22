@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, hashlib, logging, cPickle, time, thread
+import sys, time, threading
 from socket import *
 from RxP import RxP
 from recvthread import RecvThread
@@ -45,9 +45,9 @@ def main():
     desPort = hostPort - 1
 
     rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
-
+    serverStop = threading.Event()
     serverProtocol = RecvThread(rxpProtocol)
-    thread.start_new_thread(serverProtocol.run(), ())
+    serverProtocol.run(threading.Event())
 
     #execute user's commend
     while (True):
@@ -60,11 +60,10 @@ def main():
             rxpProtocol.setWindowSize(wsize)
         elif Sinput.__eq__("terminate"):
             rxpProtocol.close()
-            #close serverProtocol
-            #for t in rxpProtocol.getThreadList():
-                #need discuss
-                #close t
-            rxpProtocol.getSocket().close()
+            serverStop.set()
+            for event in rxpProtocol.threads:
+                event.set()
+            rxpProtocol.socket.close()
             print ("Server is closed")
             break
 

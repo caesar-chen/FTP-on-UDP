@@ -3,7 +3,7 @@
 from time import time
 
 class RxPTimer:
-    timeout = 1
+    timeout = 100
 
     def __init__(self):
         self.time = 0

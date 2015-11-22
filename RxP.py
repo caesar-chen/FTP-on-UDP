@@ -3,21 +3,23 @@
 from rxpHeader import RxPHeader
 from rxpTimer import RxPTimer
 from rxpWindow import RxPWindow
+from sendthread import SendThread
 from socket import *
 from collections import deque
 from crc import crc16xmodem
-import thread
+import threading
 
 
 class RxP:
     dataMax = 255
 
-    def __init__(self, serverAddress, emuPort, hostPort, destPort, filename):
+    def __init__(self, hostAddress, emuPort, hostPort, destPort, filename):
         self.netEmuPort = emuPort
-        self.serverAddress = serverAddress
+        self.hostAddress = hostAddress
         self.hostPort = hostPort
         self.destPort = destPort
         self.socket = socket(AF_INET, SOCK_DGRAM)
+        self.socket.bind((self.hostAddress, self.hostPort))
         self.header = RxPHeader(hostPort, destPort, 0, 0)
         self.cntBit = 0
         self.getBit = 0
@@ -39,18 +41,20 @@ class RxP:
         self.rxpTimer.start()
         print 'Send first msg[SYN=1].'
 
-        while not self.cntBit:
+        while self.cntBit == 0:
             if self.rxpTimer.isTimeout():
                 self.header.syn = True
                 self.header.seqNum = 0
                 self.send(None)
+                print 'Re-Send first msg[SYN=1].'
                 self.rxpTimer.start()
 
-        while self.cntBit:
+        while self.cntBit == 1:
             if self.rxpTimer.isTimeout():
                 self.header.syn = False
                 self.header.seqNum = 1
                 self.send(None)
+                print 'Re-Send first msg[SYN=0].'
                 self.rxpTimer.start()
 
         self.header.cnt = False
@@ -79,21 +83,26 @@ class RxP:
         self.header.cnt = False
         self.reset()
 
-    def listen(self):
+    def listen(self, event):
         print 'start to listen'
-        while True:
+        while True and not event.isSet():
             recvPacket, address = self.socket.recvfrom(1024)
+            packet = bytearray(recvPacket)
 
-            if self.validateChecksum(recvPacket):
-                tempHeader = self.getHeader(recvPacket)
+            if self.validateChecksum(packet):
+                tempHeader = self.getHeader(packet)
                 if tempHeader.cnt:
-                    self.recvCntPkt(recvPacket)
+                    print 'control packet'
+                    self.recvCntPkt(packet)
                 elif tempHeader.get:
-                    self.recvGetPkt(recvPacket)
+                    print 'get packet'
+                    self.recvGetPkt(packet)
                 elif tempHeader.post:
-                    self.recvPostPkt(recvPacket)
+                    print 'post packet'
+                    self.recvPostPkt(packet)
                 elif tempHeader.dat:
-                    self.recvDataPkt(recvPacket)
+                    print 'data packet'
+                    self.recvDataPkt(packet)
             else:
                 print 'Received corrupted data, dropped.'
 
@@ -131,16 +140,16 @@ class RxP:
 
     def send(self, data):
         self.header.ack = False
-        print 'start to send'
 
         datagram = self.pack(self.header.getHeader(), data)
         datagram = self.addChecksum(datagram)
-        self.socket.sendto(datagram, (self.serverAddress, self.netEmuPort))
+        self.socket.sendto(datagram, (self.hostAddress, self.netEmuPort))
 
     def sendAck(self):
+        print 'sending ACK'
         self.header.ack = True
         datagram = self.addChecksum(self.header.getHeader())
-        self.socket.sendto(datagram, (self.serverAddress, self.netEmuPort))
+        self.socket.sendto(datagram, (self.hostAddress, self.netEmuPort))
 
     def getHeader(self, datagram):
         tmpHeader = RxPHeader()
@@ -152,12 +161,12 @@ class RxP:
 
     def pack(self,header, data):
         if data:
-            result = header.append(data)
+            result = header + data
             return result
         else:
             return header
 
-    def postFile(self, filename):
+    def postFile(self, filename, event):
         if self.cntBit == 2:
             nameBytes = bytearray(filename)
             self.header.post = True
@@ -167,7 +176,7 @@ class RxP:
             print 'Sending Post initialize msg.'
             self.rxpTimer.start()
 
-            while self.postBit == 0:
+            while self.postBit == 0 and not event.isSet():
                 if self.rxpTimer.isTimeout():
                     self.header.post = True
                     self.header.seqNum = 0
@@ -175,6 +184,9 @@ class RxP:
                     self.header.post = False
                     print 'Re-send Post initialize msg.'
                     self.rxpTimer.start()
+            if event.isSet():
+                print 'Post file interrupted'
+                return
 
             self.transTimer.start()
             file = open(filename, "rb")
@@ -184,13 +196,14 @@ class RxP:
             fileIndex = 0
             self.rxpTimer.start()
 
-            while fileIndex < fileSize or len(self.buffer) > 0:
+            while (fileIndex < fileSize or len(self.buffer) > 0) and not event.isSet():
                 if self.rxpTimer.isTimeout():
                     self.rxpWindow.nextToSend = self.rxpWindow.startWindow
                     self.rxpTimer.start()
                     for i in range(len(self.buffer)):
                         if fileIndex >= fileSize:
                             if i == len(self.buffer) - 1:
+                                print 'set end of file'
                                 self.header.end = True
                             seq = self.rxpWindow.nextToSend
                             self.header.seqNum = seq
@@ -208,22 +221,25 @@ class RxP:
                         data = fileBytes[fileIndex:fileIndex + bufferSize]
                     fileIndex += bufferSize
 
-                if fileIndex >= fileSize:
-                    self.header.end = True
-                seq = self.rxpWindow.nextToSend
-                self.header.seqNum = seq
-                self.header.dat = True
-                self.send(data)
-                self.header.dat = False
-                self.header.end = False
-                self.rxpWindow.nextToSend = seq + 1
-                self.buffer.append(data)
+                    if fileIndex >= fileSize:
+                        self.header.end = True
+                    seq = self.rxpWindow.nextToSend
+                    self.header.seqNum = seq
+                    self.header.dat = True
+                    self.send(data)
+                    self.header.dat = False
+                    self.header.end = False
+                    self.rxpWindow.nextToSend = seq + 1
+                    self.buffer.append(data)
 
             file.close()
             transTime = self.transTimer.time
             self.postBit = 0
             self.getBit = 0
             self.header.end = False
+
+            if event.isSet():
+                print 'Post file interrupted'
         else:
             print 'No connection'
 
@@ -233,9 +249,11 @@ class RxP:
             print 'Received Data ACK Num: %d' % tmpHeader.ackNum
 
             if tmpHeader.ackNum == self.rxpWindow.startWindow:
+                print 'moving window'
                 self.rxpTimer.start()
                 self.rxpWindow.startWindow += 1
                 self.rxpWindow.endWindow += 1
+                print 'poping buffer'
                 self.buffer.popleft()
         else:
             if self.output == None:
@@ -245,6 +263,7 @@ class RxP:
                     content = self.getContent(packet)
                     self.output.write(content)
                     self.recvFileIndex += 1
+                    self.output.flush()
 
                     if tmpHeader.end:
                         self.output.close()
@@ -271,8 +290,11 @@ class RxP:
                 content = self.getContent(packet)
                 filename = self.bytesToString(content)
                 self.getBit = 1
-                # thread problem?
-                self.threads.append(thread.start_new_thread(self.postFile(filename)))
+                sendTread = SendThread(self, filename)
+                stopEvent = threading.Event()
+                thread = threading.Thread(target=sendTread.run, args=(stopEvent,))
+                self.threads.append(stopEvent)
+                thread.start()
             self.header.get = True
             self.sendAck()
             self.header.get = False
@@ -282,14 +304,15 @@ class RxP:
         seq = tmpHeader.seqNum
         self.header.ackNum = seq
 
-        if tmpHeader.post == 0:
+        if self.postBit == 0:
             if tmpHeader.ack:
                 self.postBit = 1
             else:
                 content = self.getContent(packet)
                 filename = self.bytesToString(content)
-                self.output = open(filename, "ab")
+                self.output = open("./down/" + filename, "ab")
                 self.header.post = True
+                print 'sending post ack'
                 self.sendAck()
                 self.header.post = False
 
@@ -311,6 +334,7 @@ class RxP:
                 print 'Received first SYN ack, sending second msg[SYN=0].'
                 self.cntBit = 1
             elif not tmpHeader.fin and not tmpHeader.ack:
+                print 'server received SYN from client, and sent back ACK to client'
                 self.header.cnt = True
                 self.sendAck()
                 self.header.cnt = False
@@ -320,7 +344,8 @@ class RxP:
                 self.sendAck()
                 self.header.cnt = False
                 print 'Connection established'
-            if not tmpHeader.seqNum and tmpHeader.syn:
+            if tmpHeader.seqNum == 0 and tmpHeader.syn:
+                print '1111111111'
                 self.header.cnt = True
                 self.sendAck()
                 self.header.cnt = False
@@ -365,32 +390,31 @@ class RxP:
     def bytesToString(self, data):
         return data.decode("utf-8")
 
-    def addChecksum(self, packet, bits = 8):
-        print 'add checksum'
+    def addChecksum(self, packet):
         data = ''
+        packet[14] = 0
+        packet[15] = 0
         for byte in packet:
             data += str(byte)
         checksum = crc16xmodem(data)
-        print checksum
         packet[14] = checksum >> 8
         packet[15] = checksum & 0xFF
-        print 'finish cs'
         return packet
 
     def validateChecksum(self, packet):
         correct = False
-        crc = 0xFFFF
-        res = packet.decode("utf-8")
-        for op, code in zip(res[0::2], res[1::2]):
-            crc = crc ^ int(op + code, 16)
-            for bit in range(0 , bits):
-                if (crc & 0x0001)  == 0x0001:
-                    crc = ((crc >> 1) ^ 0xA001)
-                else:
-                    crc = crc >> 1
-        msb = crc >> 8
-        lsb = crc & 0x00FF
-        if msb == packet[14] and lsb == packet[15]:
+        data = ''
+        firstB = packet[14]
+        secondB = packet[15]
+        packet[14] = 0
+        packet[15] = 0
+        for byte in packet:
+            data += str(byte)
+        checksum = crc16xmodem(data)
+        msb = checksum >> 8
+        lsb = checksum & 0xFF
+        if msb == firstB and lsb == secondB:
             correct = True
-        print 'checksum result'
+        packet[14] = firstB
+        packet[15] = secondB
         return correct
