@@ -84,9 +84,6 @@ def main():
             if rxpProtocol != None:
                 rxpProtocol.close()
                 connStop.set()
-
-                # if sThread != None:
-                #     stop sendThread
                 rxpProtocol.socket.close()
 
 if __name__ == "__main__":

@@ -71,6 +71,7 @@ class RxP:
                 self.header.fin = True
                 self.header.seqNum = 0
                 self.send(None)
+                print 'Re-Send first msg[FIN=1]'
                 self.rxpTimer.start()
 
         while self.cntBit == 3:
@@ -78,9 +79,11 @@ class RxP:
                 self.header.fin = False
                 self.header.seqNum = 1
                 self.send(None)
+                print 'Re-Send first msg[FIN=0]'
                 self.rxpTimer.start()
 
         self.header.cnt = False
+        print 'Connection Closed'
         self.reset()
 
     def listen(self, event):
@@ -139,14 +142,27 @@ class RxP:
             print 'No connection'
 
     def send(self, data):
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+        print self.header.cnt
+        print self.header.syn
+        print self.header.post
+        print self.header.dat
+        print 'sending seq: %d' % self.header.seqNum
+        print '<<<<<<<<<<<<<<<<<<<<<<<<<<<'
         self.header.ack = False
-
         datagram = self.pack(self.header.getHeader(), data)
         datagram = self.addChecksum(datagram)
         self.socket.sendto(datagram, (self.hostAddress, self.netEmuPort))
 
     def sendAck(self):
-        print 'sending ACK'
+        print '>>>>>>>>>>>'
+        print self.header.cnt
+        print self.header.syn
+        print self.header.post
+        print self.header.dat
+        print 'ack packet seq: %d' % self.header.seqNum
+        print 'acking num: %d' %self.header.ackNum
+        print '<<<<<<<<<<<'
         self.header.ack = True
         datagram = self.addChecksum(self.header.getHeader())
         self.socket.sendto(datagram, (self.hostAddress, self.netEmuPort))
@@ -234,6 +250,7 @@ class RxP:
 
             file.close()
             transTime = self.transTimer.time
+            print 'postbit set to 0, getbit set to 0'
             self.postBit = 0
             self.getBit = 0
             self.header.end = False
@@ -272,7 +289,7 @@ class RxP:
                 seq = tmpHeader.seqNum
                 if self.recvFileIndex > seq:
                     self.header.ackNum = seq
-                elif self.recvFileIndex <seq:
+                elif self.recvFileIndex < seq:
                     self.header.ackNum = self.recvFileIndex - 1
                 self.header.dat = True
                 self.sendAck()
@@ -306,6 +323,7 @@ class RxP:
 
         if self.postBit == 0:
             if tmpHeader.ack:
+                print 'postbit set to 1'
                 self.postBit = 1
             else:
                 content = self.getContent(packet)
@@ -326,12 +344,13 @@ class RxP:
                 print 'Received connection initializing msg [SYN=1]'
                 self.header.cnt = True
                 self.sendAck()
+                print 'cntbit set to 1'
                 self.cntBit = 1
             elif self.header.syn and tmpHeader.ack:
                 self.header.syn = False
                 self.header.seqNum = 1
                 self.send(None)
-                print 'Received first SYN ack, sending second msg[SYN=0].'
+                print 'Received first SYN ack, sending second msg[SYN=0]. cnt bit set to 1'
                 self.cntBit = 1
             elif not tmpHeader.fin and not tmpHeader.ack:
                 print 'server received SYN from client, and sent back ACK to client'
@@ -340,20 +359,22 @@ class RxP:
                 self.header.cnt = False
         elif self.cntBit == 1:
             if not tmpHeader.ack and not tmpHeader.syn:
+                print 'cntbit set to 22222'
                 self.cntBit = 2
                 self.sendAck()
                 self.header.cnt = False
                 print 'Connection established'
             if tmpHeader.seqNum == 0 and tmpHeader.syn:
-                print '1111111111'
+                print 'Second SYN initialization'
                 self.header.cnt = True
                 self.sendAck()
                 self.header.cnt = False
             if tmpHeader.ack:
+                print 'cntbit set to 2'
                 self.cntBit = 2
         elif self.cntBit == 2:
             if tmpHeader.fin:
-                print 'Received connection closing msg [FIN=1]'
+                print 'Received connection closing msg [FIN=1] cntbit set to 3'
                 self.header.cnt = True
                 self.sendAck()
                 self.cntBit = 3
@@ -361,7 +382,7 @@ class RxP:
                 self.header.fin = False
                 self.header.seqNum = 1
                 self.send(None)
-                print 'Received first FIN ack, sending second msg[FIN=0]'
+                print 'Received first FIN ack, sending second msg[FIN=0] cnt bit set to 3'
                 self.cntBit = 3
             elif not tmpHeader.ack and not tmpHeader.syn:
                 self.header.cnt = True
@@ -369,6 +390,7 @@ class RxP:
                 self.header.cnt = False
         elif self.cntBit == 3:
             if not tmpHeader.ack and not tmpHeader.fin:
+                print 'cnt bit set to 000000'
                 self.cntBit = 0
                 self.sendAck()
                 self.header.cnt = False
@@ -379,6 +401,7 @@ class RxP:
                 self.sendAck()
                 self.header.cnt = False
             elif tmpHeader.ack:
+                print 'cnt bit set to 0'
                 self.cntBit = 0
 
     def setWindowSize(self, windowSize):
@@ -415,6 +438,4 @@ class RxP:
         lsb = checksum & 0xFF
         if msb == firstB and lsb == secondB:
             correct = True
-        packet[14] = firstB
-        packet[15] = secondB
         return correct
