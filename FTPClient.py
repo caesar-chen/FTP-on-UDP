@@ -7,7 +7,7 @@ from recvthread import RecvThread
 from sendthread import SendThread
 
  #  FxAClient  
- #  deals with the client side command line arguments and supports the following functions:
+ #  deals with the client side command line arguments and supports:
  #  Connect - to establish connection
  #  Get File(File Name) - download the file from server
  #  Post File (File Name) - upload the file to server
@@ -49,13 +49,12 @@ def main():
     log = "output-client.txt"
 
     #execute user's commend
-    #可以改 "argument"
     while (True):
         time.sleep(.500)
         Sinput = input("type connect - to establish connection \n"
                     + "get 'filename' - to download the file from server \n"
                     + "post 'filename' - to upload the file to server \n"
-                    + "Window W - to change the window size \n"
+                    + "window int(size) - to change the window size \n"
                     + "disconnect - to close the connection")
         if Sinput.__eq__("connect"):
             rxpProtocol = RxP(serverIP, netEmuPort, clientPort, desPort, log)
