@@ -5,11 +5,12 @@ from socket import *
 from RxP import RxP
 from threads import RecvThread
 
- #  FxAServer
- #  deals with the server side command line arguments and supports the following functions:
- #  start server
- #  Window (w) - change window size, default window size = 2
- #  terminate - terminate the server
+#  FxAServer
+#  deals with the server side command line arguments and supports the following functions:
+#  start server
+#  Window (w) - change window size, default window size = 2
+#  terminate - terminate the server
+
 
 def main():
 
@@ -37,10 +38,14 @@ def main():
     #Server IP address
     serverIP = arg[2]
 
-    #netEmu port number
+    if not _validIP(serverIP):
+        print 'IP address is not valid, please try again'
+        sys.exit()
+
+    # netEmu port number
     netEmuPort = int(arg[3])
 
-    #Dest. port number
+    # Dest. port number
     desPort = hostPort - 1
 
     # rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
@@ -53,7 +58,7 @@ def main():
     serverProtocol = RecvThread(rxpProtocol)
     serverProtocol.start()
 
-    #execute user's commend
+    # execute user's commend
     while (True):
         Sinput = raw_input("type Window W - to change the window size \n"
                     + "terminate - to terminate the server\n")
@@ -69,6 +74,22 @@ def main():
                 thread.stop()
             print ("Server is closed")
             break
+
+
+# check IP format validation
+def _validIP(address):
+    parts = address.split(".")
+    if len(parts) != 4:
+        return False
+    for num in parts:
+        try:
+            part = int(num)
+        except ValueError:
+            print 'Invalid IP. Please try again.'
+            sys.exit()
+        if not 0 <= part <= 255:
+            return False
+    return True
 
 
 if __name__ == "__main__":

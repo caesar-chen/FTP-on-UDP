@@ -11,7 +11,7 @@ import unicodedata, sys
 
 
 class RxP:
-    dataMax = 255 # max data in the packet
+    dataMax = 255  # total bytes in a packet
 
     # refer to rxpHeader class for more info
     def __init__(self, hostAddress, emuPort, hostPort, destPort, filename):
@@ -22,16 +22,16 @@ class RxP:
         self.socket = socket(AF_INET, SOCK_DGRAM)
         self.socket.bind((self.hostAddress, self.hostPort))
         self.header = RxPHeader(hostPort, destPort, 0, 0)
-        self.cntBit = 0 # stands for connection state(3 way handshake)
-        self.getBit = 0 # get file 
-        self.postBit = 0 #post file
+        self.cntBit = 0  # stands for connection state(3 way handshake)
+        self.getBit = 0  # get file
+        self.postBit = 0  # post file
         self.rxpWindow = RxPWindow()
         self.rxpTimer = RxPTimer()
         self.transTimer = RxPTimer()
-        self.buffer = deque() # buffer to store data
-        self.output = None # output file
-        self.recvFileIndex = 0 # current index of receiving file
-        self.threads = [] # supports multiple clients
+        self.buffer = deque()  # buffer to store data
+        self.output = None  # output file
+        self.recvFileIndex = 0  # current index of receiving file
+        self.threads = []  # supports multiple get request
 
     #  When user type in "connect" command Establish handshake connection with
     #  host by sending SYN messages. Handling the time out situation 
@@ -94,8 +94,8 @@ class RxP:
         print 'Connection Closed'
         self.reset()
 
-     # Listening the incoming request including connect request, get, post, and
-     # data action by checking the received packet contents
+    # Listening the incoming request including connect request, get, post, and
+    # data action by checking the received packet contents
     def listen(self, event):
         print 'start to listen'
         while True and not event.stopped():
@@ -182,12 +182,8 @@ class RxP:
         tmpHeader.headerFromBytes(datagram)
         return tmpHeader
 
-    # Getting the actual content from received data
-    def getContent(self, data):
-        return data[RxPHeader.headerLen:]
-
-     # Packing header array and data array into a new array, so that we can send
-     # this new data to the UDP socket
+    # Packing header array and data array into a new array, so that we can send
+    # this new data to the UDP socket
     def pack(self,header, data):
         if data:
             result = header + data
@@ -219,8 +215,8 @@ class RxP:
                 return
 
             self.transTimer.start()
-            file = open(filename, "rb")
-            fileBytes = bytearray(file.read())
+            readFile = open(filename, "rb")
+            fileBytes = bytearray(readFile.read())
             bufferSize = RxP.dataMax - RxPHeader.headerLen
             fileSize = len(fileBytes)
             fileIndex = 0
@@ -266,9 +262,8 @@ class RxP:
                     self.rxpWindow.nextToSend = seq + 1
                     self.buffer.append(data)
 
-            file.close()
+            readFile.close()
             transTime = self.transTimer.time
-            print 'postbit set to 0, getbit set to 0'
             self.postBit = 0
             self.getBit = 0
             self.header.end = False
@@ -296,7 +291,7 @@ class RxP:
                 print 'Output is not ready'
             else:
                 if self.recvFileIndex == tmpHeader.seqNum:
-                    content = self.getContent(packet)
+                    content = packet[RxPHeader.headerLen:]
                     self.output.write(content)
                     self.recvFileIndex += 1
                     self.output.flush()
@@ -327,7 +322,7 @@ class RxP:
             self.getBit = 1
         else:
             if self.getBit == 0:
-                content = self.getContent(packet)
+                content = packet[RxPHeader.headerLen:]
                 uniFilename = self.bytesToString(content)
                 filename = unicodedata.normalize('NFKD', uniFilename).encode('utf-8','ignore')
                 self.getBit = 1
@@ -349,7 +344,7 @@ class RxP:
                 print 'postbit set to 1'
                 self.postBit = 1
             else:
-                content = self.getContent(packet)
+                content = packet[RxPHeader.headerLen:]
                 filename = self.bytesToString(content)
                 self.output = open("./down/" + filename, "ab")
                 self.header.post = True
@@ -441,8 +436,8 @@ class RxP:
     def bytesToString(self, data):
         return data.decode('utf-8')
 
-     # Before sending the packet, we have to add a check sum field into each
-     # packet to make sure the correction of data
+    # Before sending the packet, we have to add a check sum field into each
+    # packet to make sure the correction of data
     def addChecksum(self, packet):
         data = ''
         packet[14] = 0
