@@ -8,7 +8,7 @@ from socket import *
 from collections import deque
 from crc import crc16xmodem
 import threading, unicodedata
-import time
+
 
 class RxP:
     dataMax = 255 # max data in the packet
@@ -98,8 +98,12 @@ class RxP:
      # data action by checking the received packet contents
     def listen(self, event):
         print 'start to listen'
-        while True and not event.isSet():
-            recvPacket, address = self.socket.recvfrom(1024)
+        while True and not event.stopped():
+            self.socket.settimeout(1)
+            try:
+                recvPacket, address = self.socket.recvfrom(1024)
+            except IOError:
+                continue
             packet = bytearray(recvPacket)
 
             if self.validateChecksum(packet):
@@ -126,7 +130,7 @@ class RxP:
         self.cntBit = 0
         self.getBit = 0
         self.postBit = 0
-        self.buffer = []
+        self.buffer = deque()
         self.recvFileIndex = 0
         self.output = None
 
@@ -167,10 +171,7 @@ class RxP:
     # Getting header's ack number and add check sum to this ack number then
     # send new ACK through UDP socket
     def sendAck(self):
-        print '>>>>>>>>>>>'
-        print 'ack packet seq: %d' % self.header.seqNum
         print 'acking num: %d' %self.header.ackNum
-        print '<<<<<<<<<<<'
         self.header.ack = True
         datagram = self.addChecksum(self.header.getHeader())
         self.socket.sendto(datagram, (self.hostAddress, self.netEmuPort))
@@ -205,7 +206,7 @@ class RxP:
             print 'Sending Post initialize msg.'
             self.rxpTimer.start()
 
-            while self.postBit == 0 and not event.isSet():
+            while self.postBit == 0 and not event.stopped():
                 if self.rxpTimer.isTimeout():
                     self.header.post = True
                     self.header.seqNum = 0
@@ -213,7 +214,7 @@ class RxP:
                     self.header.post = False
                     print 'Re-send Post initialize msg.'
                     self.rxpTimer.start()
-            if event.isSet():
+            if event.stopped():
                 print 'Post file interrupted'
                 return
 
@@ -225,8 +226,7 @@ class RxP:
             fileIndex = 0
             self.rxpTimer.start()
 
-            while (fileIndex < fileSize or len(self.buffer) > 0) and not event.isSet():
-                time.sleep(.020)
+            while (fileIndex < fileSize or len(self.buffer) > 0) and not event.stopped():
                 if self.rxpTimer.isTimeout():
                     self.rxpWindow.nextToSend = self.rxpWindow.startWindow
                     self.rxpTimer.start()
@@ -273,7 +273,7 @@ class RxP:
             self.getBit = 0
             self.header.end = False
 
-            if event.isSet():
+            if event.stopped():
                 print 'Post file interrupted'
         else:
             print 'No connection'
@@ -332,10 +332,8 @@ class RxP:
                 filename = unicodedata.normalize('NFKD', uniFilename).encode('utf-8','ignore')
                 self.getBit = 1
                 sendTread = SendThread(self, filename)
-                stopEvent = threading.Event()
-                thread = threading.Thread(target=sendTread.run, args=(stopEvent,))
-                self.threads.append(stopEvent)
-                thread.start()
+                self.threads.append(sendTread)
+                sendTread.start()
             self.header.get = True
             self.sendAck()
             self.header.get = False

@@ -50,18 +50,14 @@ def main():
     # sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
     # sTread.start()
 
+    rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
+    serverProtocol = RecvThread(rxpProtocol)
+    serverProtocol.start()
+
     #execute user's commend
     while (True):
-        # initialize server
-        rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
-        serverStop = threading.Event()
-        serverProtocol = RecvThread(rxpProtocol)
-        sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
-        sTread.start()
-
         Sinput = raw_input("type Window W - to change the window size \n"
-                    + " terminate - to terminate the server")
-        # change window size
+                    + "terminate - to terminate the server\n")
         if "window" in Sinput:
             s = Sinput.split()
             wsize = int(s[1])
@@ -69,10 +65,9 @@ def main():
         # close server
         elif Sinput.__eq__("terminate"):
             rxpProtocol.close()
-            serverStop.set()
-            for event in rxpProtocol.threads:
-                event.set()
-            rxpProtocol.socket.close()
+            serverProtocol.stop()
+            for thread in rxpProtocol.threads:
+                thread.stop()
             print ("Server is closed")
             break
 

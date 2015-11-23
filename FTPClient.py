@@ -46,6 +46,9 @@ def main():
 
     log = "output-client.txt"
 
+    clientProtocol = None
+    sendThread = None
+
     connThread = None
     connStop = threading.Event()
     sThread = None
@@ -58,13 +61,12 @@ def main():
                     + "get 'filename' - to download the file from server \n"
                     + "post 'filename' - to upload the file to server \n"
                     + "Window W - to change the window size \n"
-                    + "disconnect - to close the connection\n")
-        # connect to server
+                    + "disconnect - to close the connection\n"
+                    + 'quit - to quit the application\n')
         if Sinput.__eq__("connect"):
             rxpProtocol = RxP(serverIP, netEmuPort, clientPort, desPort, log)
             clientProtocol = RecvThread(rxpProtocol)
-            connThread = threading.Thread(target=clientProtocol.run, args=(connStop,))
-            connThread.start()
+            clientProtocol.start()
             rxpProtocol.connect()
         # get file form server
         elif "get" in Sinput:
@@ -76,8 +78,7 @@ def main():
             if rxpProtocol != None:
                 s = Sinput.split()
                 sendThread = SendThread(rxpProtocol, s[1])
-                sThread = threading.Thread(target=sendThread.run, args=(sStop,))
-                sThread.start()
+                sendThread.start()
         # set the window size
         elif "window" in Sinput:
             if rxpProtocol != None:
@@ -88,8 +89,14 @@ def main():
         elif Sinput.__eq__("disconnect"):
             if rxpProtocol != None:
                 rxpProtocol.close()
-                connStop.set()
+                clientProtocol.stop()
                 rxpProtocol.socket.close()
+                rxpProtocol = None
+        elif Sinput.__eq__("quit"):
+            if rxpProtocol:
+                print 'disconnect before quit'
+            else:
+                break
 
 if __name__ == "__main__":
     main()
