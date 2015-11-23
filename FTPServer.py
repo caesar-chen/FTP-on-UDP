@@ -44,16 +44,23 @@ def main():
     #Dest. port number
     desPort = hostPort - 1
 
-    rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
-    serverStop = threading.Event()
-    serverProtocol = RecvThread(rxpProtocol)
-    sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
-    sTread.start()
+    # rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
+    # serverStop = threading.Event()
+    # serverProtocol = RecvThread(rxpProtocol)
+    # sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
+    # sTread.start()
 
     #execute user's commend
     while (True):
+
+        rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
+        serverStop = threading.Event()
+        serverProtocol = RecvThread(rxpProtocol)
+        sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
+        sTread.start()
+
         Sinput = raw_input("type Window W - to change the window size \n"
-                    + "terminate - to terminate the server")
+                    + " terminate - to terminate the server")
 
         if "window" in Sinput:
             s = Sinput.split()

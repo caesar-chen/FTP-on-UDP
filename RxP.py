@@ -8,7 +8,7 @@ from socket import *
 from collections import deque
 from crc import crc16xmodem
 import threading, unicodedata
-
+import time
 
 class RxP:
     dataMax = 255
@@ -117,6 +117,7 @@ class RxP:
         self.postBit = 0
         self.buffer = []
         self.recvFileIndex = 0
+        self.output = None
 
     def getFile(self, filename):
         if self.cntBit == 2:
@@ -203,6 +204,7 @@ class RxP:
             self.rxpTimer.start()
 
             while (fileIndex < fileSize or len(self.buffer) > 0) and not event.isSet():
+                time.sleep(.020)
                 if self.rxpTimer.isTimeout():
                     self.rxpWindow.nextToSend = self.rxpWindow.startWindow
                     self.rxpTimer.start()
@@ -280,7 +282,10 @@ class RxP:
                 if self.recvFileIndex > seq:
                     self.header.ackNum = seq
                 elif self.recvFileIndex < seq:
-                    self.header.ackNum = self.recvFileIndex - 1
+                    if self.recvFileIndex != 0:
+                        self.header.ackNum = self.recvFileIndex - 1
+                    else:
+                        self.header.ackNum = 0
                 self.header.dat = True
                 self.sendAck()
                 self.header.dat = False
