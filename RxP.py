@@ -121,6 +121,7 @@ class RxP:
         self.postBit = 0
         self.buffer = []
         self.recvFileIndex = 0
+        self.output = None
 
     def getFile(self, filename):
         if self.cntBit == 2:
