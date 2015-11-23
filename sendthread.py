@@ -1,15 +1,23 @@
 #!/usr/bin/env python
 
-class SendThread:
+import threading
+
+class SendThread(threading.Thread):
 
     def __init__(self, rxp, filename):
+        super(SendThread, self).__init__()
         self.rxp = rxp
         self.filename = filename
+        self._stop = threading.Event()
 
-        #not sure what exception listen() will have
-    def run(self, event):
-        print 'start postfile'
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.isSet()
+
+    def run(self):
         try:
-            self.rxp.postFile(filename=self.filename, event=event)
+            self.rxp.postFile(self.filename, self)
         except IOError as e:
             print ("I/O error({0}): {1}".format(e.errno, e.strerror))

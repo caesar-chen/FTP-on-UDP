@@ -46,10 +46,8 @@ def main():
 
     log = "output-client.txt"
 
-    connThread = None
-    connStop = threading.Event()
-    sThread = None
-    sStop = threading.Event()
+    clientProtocol = None
+    sendThread = None
 
     #execute user's commend
     while True:
@@ -58,12 +56,12 @@ def main():
                     + "get 'filename' - to download the file from server \n"
                     + "post 'filename' - to upload the file to server \n"
                     + "Window W - to change the window size \n"
-                    + "disconnect - to close the connection\n")
+                    + "disconnect - to close the connection\n"
+                    + 'quit - to quit the application\n')
         if Sinput.__eq__("connect"):
             rxpProtocol = RxP(serverIP, netEmuPort, clientPort, desPort, log)
             clientProtocol = RecvThread(rxpProtocol)
-            connThread = threading.Thread(target=clientProtocol.run, args=(connStop,))
-            connThread.start()
+            clientProtocol.start()
             rxpProtocol.connect()
         elif "get" in Sinput:
             if rxpProtocol != None:
@@ -73,8 +71,7 @@ def main():
             if rxpProtocol != None:
                 s = Sinput.split()
                 sendThread = SendThread(rxpProtocol, s[1])
-                sThread = threading.Thread(target=sendThread.run, args=(sStop,))
-                sThread.start()
+                sendThread.start()
         elif "window" in Sinput:
             if rxpProtocol != None:
                 s = Sinput.split()
@@ -83,8 +80,14 @@ def main():
         elif Sinput.__eq__("disconnect"):
             if rxpProtocol != None:
                 rxpProtocol.close()
-                connStop.set()
+                clientProtocol.stop()
                 rxpProtocol.socket.close()
+                rxpProtocol = None
+        elif Sinput.__eq__("quit"):
+            if rxpProtocol:
+                print 'disconnect before quit'
+            else:
+                break
 
 if __name__ == "__main__":
     main()
