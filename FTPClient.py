@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, hashlib, logging, cPickle, time, thread
+import time, threading, sys
 from socket import *
 from RxP import RxP
 from recvthread import RecvThread
@@ -11,7 +11,7 @@ from sendthread import SendThread
  #  Connect - to establish connection
  #  Get File(File Name) - download the file from server
  #  Post File (File Name) - upload the file to server
- #  Window (w) - change window size, default window size = 2
+ #  Window (size) - change window size, default window size = 2
  #  Disconnect - close the connection
 
 def main():
@@ -44,44 +44,52 @@ def main():
     #Dest. port number
     desPort = clientPort + 1
 
-    clientProtocol = None
-    sendThread = None
     log = "output-client.txt"
 
+    connThread = None
+    connStop = threading.Event()
+    sThread = None
+    sStop = threading.Event()
+
     #execute user's commend
-    while (True):
+    while True:
         time.sleep(.500)
-        Sinput = input("type connect - to establish connection \n"
+        Sinput = raw_input("type connect - to establish connection \n"
                     + "get 'filename' - to download the file from server \n"
                     + "post 'filename' - to upload the file to server \n"
-                    + "window int(size) - to change the window size \n"
-                    + "disconnect - to close the connection")
+                    + "Window W - to change the window size \n"
+                    + "disconnect - to close the connection\n")
+        # connect to server
         if Sinput.__eq__("connect"):
             rxpProtocol = RxP(serverIP, netEmuPort, clientPort, desPort, log)
             clientProtocol = RecvThread(rxpProtocol)
-            thread.start_new_thread(clientProtocol.run(), ())
+            connThread = threading.Thread(target=clientProtocol.run, args=(connStop,))
+            connThread.start()
             rxpProtocol.connect()
-        else if "get" in Sinput:
+        # get file form server
+        elif "get" in Sinput:
             if rxpProtocol != None:
-                s = Sinput.split("\\s")
+                s = Sinput.split()
                 rxpProtocol.getFile(s[1])
-        else if "post" in Sinput:
+        # post file form server
+        elif "post" in Sinput:
             if rxpProtocol != None:
-                s = Sinput.split("\\s")
+                s = Sinput.split()
                 sendThread = SendThread(rxpProtocol, s[1])
-                thread.start_new_thread(sendThread.run(), ())
-        else if "window" in Sinput:
+                sThread = threading.Thread(target=sendThread.run, args=(sStop,))
+                sThread.start()
+        # set the window size
+        elif "window" in Sinput:
             if rxpProtocol != None:
-                s = Sinput.split("\\s")
+                s = Sinput.split()
                 window = int(s[1])
                 rxpProtocol.setWindowSize(window)
-        else if Sinput.__eq__("disconnect"):
+        #close connection
+        elif Sinput.__eq__("disconnect"):
             if rxpProtocol != None:
                 rxpProtocol.close()
-                ##stop clientProtocol
-                ##if sendThread != None:
-                    ##stop sendThread
-                rxpProtocol.getSocket().close()
+                connStop.set()
+                rxpProtocol.socket.close()
 
 if __name__ == "__main__":
     main()

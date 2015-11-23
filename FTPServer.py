@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, hashlib, logging, cPickle, time, thread
+import sys, threading
 from socket import *
 from RxP import RxP
 from recvthread import RecvThread
@@ -44,28 +44,35 @@ def main():
     #Dest. port number
     desPort = hostPort - 1
 
-    rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
-
-    serverProtocol = RecvThread(rxpProtocol)
-    thread.start_new_thread(serverProtocol.run(), ())
+    # rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
+    # serverStop = threading.Event()
+    # serverProtocol = RecvThread(rxpProtocol)
+    # sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
+    # sTread.start()
 
     #execute user's commend
-    #可以改 "argument"
     while (True):
-        Sinput = input("type Window W - to change the window size \n"
-                    + "terminate - to terminate the server")
+        # initialize server
+        rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
+        serverStop = threading.Event()
+        serverProtocol = RecvThread(rxpProtocol)
+        sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
+        sTread.start()
 
+        Sinput = raw_input("type Window W - to change the window size \n"
+                    + " terminate - to terminate the server")
+        # change window size
         if "window" in Sinput:
-            s = Sinput.split("\\s")
-            wsize = (int)s[1]
+            s = Sinput.split()
+            wsize = int(s[1])
             rxpProtocol.setWindowSize(wsize)
-        else if Sinput.__eq__("terminate"):
+        # close server
+        elif Sinput.__eq__("terminate"):
             rxpProtocol.close()
-            #close serverProtocol
-            #for t in rxpProtocol.getThreadList():
-                #need discuss
-                #close t
-            rxpProtocol.getSocket().close()
+            serverStop.set()
+            for event in rxpProtocol.threads:
+                event.set()
+            rxpProtocol.socket.close()
             print ("Server is closed")
             break
 

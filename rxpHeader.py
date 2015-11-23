@@ -1,40 +1,41 @@
 #!/usr/bin/env python
 
+# header class for RxP
 class RxPHeader:
-    headerLen = 16
+    headerLen = 16 # header length
 
-    def __init__(self, sourcePort=-1, destPort=-1, seqNum=-1, ackNum=-1):
-        self.sourcePort = sourcePort
-        self.destPort = destPort
-        self.seqNum = seqNum
-        self.ackNum = ackNum
-        self.ack = False
-        self.end = False
-        self.dat = False
-        self.cnt = False
-        self.syn = False
-        self.fin = False
-        self.get = False
-        self.post = False
-        self.checksum = 0
-        self.header = bytearray()
+    def __init__(self, sourcePort=-1, destPort=-1, seqNum=0, ackNum=0):
+        self.sourcePort = sourcePort # The port number of the packet source
+        self.destPort = destPort # The port number of the packet destination
+        self.seqNum = seqNum # Current sequence number
+        self.ackNum = ackNum # Current ack number
+        self.ack = False # bit to indicate package is ack package
+        self.end = False # bit to indicate if the package is the last package
+        self.dat = False # bit to indicate if the package is data package
+        self.cnt = False # bit to indicate if the package contains connection data
+        self.syn = False # bit to initiate a connection
+        self.fin = False # bit to close a connection
+        self.get = False # bit for get file request
+        self.post = False # bit for post file request
+        self.checksum = 0 # Checksum field
+        self.header = bytearray(16) # Byte array of header for sending
 
-
+    # convert all instance variables of RxP header into byte array
     def setHeader(self):
-        self.header.append(self.sourcePort >> 8)
-        self.header.append(self.sourcePort & 0xFF)
-        self.header.append(self.destPort >> 8)
-        self.header.append(self.destPort & 0xFF)
-        self.header.append(self.seqNum >> 24)
-        self.header.append(self.seqNum >> 16)
-        self.header.append(self.seqNum >> 8)
-        self.header.append(self.seqNum & 0xFF)
-        self.header.append(self.ackNum >> 24)
-        self.header.append(self.ackNum >> 16)
-        self.header.append(self.ackNum >> 8)
-        self.header.append(self.ackNum & 0xFF)
-        self.header.append(RxPHeader.headerLen)
-        self.header.append(0)
+        self.header[0] = self.sourcePort >> 8
+        self.header[1] = self.sourcePort & 0xFF
+        self.header[2] = self.destPort >> 8
+        self.header[3] = self.destPort & 0xFF
+        self.header[4] = self.seqNum >> 24
+        self.header[5] = self.seqNum >> 16
+        self.header[6] = self.seqNum >> 8
+        self.header[7] = self.seqNum & 0xFF
+        self.header[8] = self.ackNum >> 24
+        self.header[9] = self.ackNum >> 16
+        self.header[10] = self.ackNum >> 8
+        self.header[11] = self.ackNum & 0xFF
+        self.header[12] = RxPHeader.headerLen & 0xFF
+        self.header[13] = 0
 
         if self.fin:
             self.header[13] = self.header[13] | 0x1
@@ -53,12 +54,11 @@ class RxPHeader:
         if self.post:
             self.header[13] = self.header[13] | 0x80
 
-        self.header.append(self.checksum >> 8)
-        self.header.append(self.checksum & 0xFF)
-
+        self.header[14] = self.checksum >> 8
+        self.header[15] = self.checksum & 0xFF
         return self.header
     
-    #headerFromArray
+    # given a byte array, convert it into a RxPHeader
     def headerFromBytes(self, header):
         self.sourcePort = (header[0] << 8 | (0 | 0xFF)) & header[1]
         self.destPort = (header[2] << 8 | (0 | 0xFF)) & header[3]
@@ -84,49 +84,7 @@ class RxPHeader:
         self.checksum = header[14] << 8 | (0 | 0xFF) & header[15]
 
     def getHeader(self):
-        self.setHeader()
-        return self.header
+        return self.setHeader()
 
     def setHeaderFromBytes(self, header):
         self.header = header
-
-    def setSourcePort(self, srcPort):
-        self.sourcePort = srcPort
-
-    def setDestPort(self, destPort):
-        self.destPort = destPort
-
-    def setSeqNum(self, seqNum):
-        self.seqNum = seqNum
-
-    def setAckNum(self, ackNum):
-        self.ackNum = ackNum
-
-    def setDat(self, dat):
-        self.dat = dat
-
-    def setAck(self, ack):
-        self.ack = ack
-
-    def setEnd(self, end):
-        self.end = end
-
-    def setCnt(self, cnt):
-        self.cnt = cnt
-
-    def setSyn(self, syn):
-        self.syn = syn
-
-
-    def setFin(self, fin):
-        self.fin = fin
-
-    def setGet(self, get):
-        self.get = get
-
-    def setPost(self, post):
-        self.post = post
-
-    def setChecksum(self, checksum):
-        self.checksum = checksum
-
