@@ -238,7 +238,11 @@ class RxP:
                         seq = self.rxpWindow.nextToSend
                         self.header.seqNum = seq
                         self.header.dat = True
-                        self.send(self.buffer[i])
+                        try:
+                            self.send(self.buffer[i])
+                        except:
+                            print ("Corruption or Reodring rate too high, connection fails")
+                            sys.exit()
                         self.header.dat = False
                         self.header.end = False
                         self.rxpWindow.nextToSend = seq + 1
