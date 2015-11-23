@@ -47,7 +47,8 @@ def main():
     rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
     serverStop = threading.Event()
     serverProtocol = RecvThread(rxpProtocol)
-    serverProtocol.run(threading.Event())
+    sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
+    sTread.start()
 
     #execute user's commend
     while (True):
