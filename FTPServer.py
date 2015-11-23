@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-import sys, threading
+import sys
 from socket import *
 from RxP import RxP
-from recvthread import RecvThread
-from sendthread import SendThread
+from threads import RecvThread
 
  #  FxAServer
  #  deals with the server side command line arguments and supports the following functions:

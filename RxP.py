@@ -3,11 +3,11 @@
 from rxpHeader import RxPHeader
 from rxpTimer import RxPTimer
 from rxpWindow import RxPWindow
-from sendthread import SendThread
+from threads import SendThread
 from socket import *
 from collections import deque
 from crc import crc16xmodem
-import threading, unicodedata
+import unicodedata, sys
 
 
 class RxP:

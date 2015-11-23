@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-import time, threading, sys
+import time, sys
 from socket import *
 from RxP import RxP
-from recvthread import RecvThread
-from sendthread import SendThread
+from threads import RecvThread, SendThread
 
  #  FxAClient  
  #  deals with the client side command line arguments and supports:
