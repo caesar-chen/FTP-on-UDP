@@ -119,7 +119,7 @@ class RxP:
         self.cntBit = 0
         self.getBit = 0
         self.postBit = 0
-        self.buffer = []
+        self.buffer = deque()
         self.recvFileIndex = 0
         self.output = None
 
