@@ -215,7 +215,11 @@ class RxP:
                 return
 
             self.transTimer.start()
-            readFile = open(filename, "rb")
+            try:
+                readFile = open(filename, "rb")
+            except:
+                print ("file not found. Please type in correct filename")
+                sys.exit()
             fileBytes = bytearray(readFile.read())
             bufferSize = RxP.dataMax - RxPHeader.headerLen
             fileSize = len(fileBytes)
@@ -346,7 +350,11 @@ class RxP:
             else:
                 content = packet[RxPHeader.headerLen:]
                 filename = self.bytesToString(content)
-                self.output = open("./down/" + filename, "ab")
+                try:
+                    self.output = open("./down/" + filename, "ab")
+                except:
+                    print ("file not found. Please type in correct filename")
+                    sys.exit()
                 self.header.post = True
                 print 'sending post ack'
                 self.sendAck()
@@ -380,7 +388,7 @@ class RxP:
                 self.header.cnt = False
         elif self.cntBit == 1:
             if not tmpHeader.ack and not tmpHeader.syn:
-                print 'cntbit set to 22222'
+                print 'cntbit set to 2'
                 self.cntBit = 2
                 self.sendAck()
                 self.header.cnt = False
@@ -411,7 +419,7 @@ class RxP:
                 self.header.cnt = False
         elif self.cntBit == 3:
             if not tmpHeader.ack and not tmpHeader.fin:
-                print 'cnt bit set to 000000'
+                print 'cnt bit set to 0'
                 self.cntBit = 0
                 self.sendAck()
                 self.header.cnt = False

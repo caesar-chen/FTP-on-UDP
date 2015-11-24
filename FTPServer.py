@@ -30,29 +30,31 @@ def main():
     except ValueError:
         print 'Invalid command. Please try again.'
         sys.exit()
-
+    # validate
     if not 0 < hostPort < 65536:
         print 'Invalid port number. Please try again.'
         sys.exit()
 
     #Server IP address
     serverIP = arg[2]
-
+    # validate
     if not _validIP(serverIP):
         print 'IP address is not valid, please try again'
         sys.exit()
 
     # netEmu port number
-    netEmuPort = int(arg[3])
+    try:
+        netEmuPort = int(arg[3])
+    except ValueError:
+        print 'Invalid command. Please try again.'
+        sys.exit()
+    # validate
+    if not 0 < netEmuPort < 65536:
+        print 'Invalid port number. Please try again.'
+        sys.exit()
 
     # Dest. port number
     desPort = hostPort - 1
-
-    # rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
-    # serverStop = threading.Event()
-    # serverProtocol = RecvThread(rxpProtocol)
-    # sTread = threading.Thread(target=serverProtocol.run, args=(serverStop,))
-    # sTread.start()
 
     rxpProtocol = RxP(serverIP, netEmuPort, hostPort, desPort, log)
     serverProtocol = RecvThread(rxpProtocol)
@@ -64,7 +66,15 @@ def main():
                     + "terminate - to terminate the server\n")
         if "window" in Sinput:
             s = Sinput.split()
-            wsize = int(s[1])
+            try:
+                wsize = int(s[1])
+            except ValueError:
+                print 'Invalid window size. Please try again.'
+                sys.exit()
+            if not 0 < wsize < 50:
+                print 'Window size too big. Please try again.'
+                sys.exit()
+            print "Set window size to " + str(wsize)
             rxpProtocol.setWindowSize(wsize)
         # close server
         elif Sinput.__eq__("terminate"):

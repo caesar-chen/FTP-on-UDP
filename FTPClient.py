@@ -10,7 +10,7 @@ from threads import RecvThread, SendThread
 # Connect - to establish connection
 # Get File(File Name) - download the file from server
 # Post File (File Name) - upload the file to server
-# Window (size) - change window size, default window size = 2
+# Window (size) - change window size, default window size = 5
 # Disconnect - close the connection
 
 def main():
@@ -29,7 +29,7 @@ def main():
     except ValueError:
         print 'Invalid command. Please try again.'
         sys.exit()
-
+    # validate
     if not 0 < clientPort < 65536:
         print 'Invalid port number. Please try again.'
         sys.exit()
@@ -42,7 +42,15 @@ def main():
         sys.exit()
 
     # netEmu port number
-    netEmuPort = int(arg[3])
+    try:
+        netEmuPort = int(arg[3])
+    except ValueError:
+        print 'Invalid command. Please try again.'
+        sys.exit()
+    # validate
+    if not 0 < netEmuPort < 65536:
+        print 'Invalid port number. Please try again.'
+        sys.exit()
 
     # Dest. port number
     desPort = clientPort + 1
@@ -84,7 +92,15 @@ def main():
         elif "window" in Sinput:
             if rxpProtocol != None:
                 s = Sinput.split()
-                window = int(s[1])
+                try:
+                    window = int(s[1])
+                except ValueError:
+                    print 'Invalid window size. Please try again.'
+                    sys.exit()
+                if not 0 < window < 50:
+                    print 'Window size too big. Please try again.'
+                    sys.exit()
+                print "Set window size to " + str(window)
                 rxpProtocol.setWindowSize(window)
         #close connection
         elif Sinput.__eq__("disconnect"):
