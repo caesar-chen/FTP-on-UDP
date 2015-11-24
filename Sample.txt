@@ -1,0 +1,1657 @@
+NetEmu.py 5000 -l 10 -c 10 -d 10 -D 100 -r 25
+{'corrupt': 10, 'loss': 10, 'delay': 100, 'reord': 25, 'dup': 10}
+Socket created
+Waiting for data
+
+python FTPServer.py 8081 127.0.0.1 5000
+Server Starts
+start to listen
+type Window W - to change the window size 
+terminate - to terminate the server
+
+python FTPClient.py 8080 127.0.0.1 5000
+type connect - to establish connection 
+get 'filename' - to download the file from server 
+post 'filename' - to upload the file to server 
+Window W - to change the window size 
+disconnect - to close the connection
+quit - to quit the application
+
+type "connect"
+
+client:
+start to listenstart to connect
+sending seq#: 0
+Send first msg[SYN=1].
+control packet
+sending seq#: 1
+Received first SYN ack, sending second msg[SYN=0]. cnt bit set to 1
+control packet
+cntbit set to 2
+type connect - to establish connection 
+get 'filename' - to download the file from server 
+post 'filename' - to upload the file to server 
+Window W - to change the window size 
+disconnect - to close the connection
+quit - to quit the application
+
+server:
+control packet
+Received connection initializing msg [SYN=1]
+acking num: 0
+cntbit set to 1
+control packet
+cntbit set to 2
+acking num: 1
+Connection established
+
+type "get small.txt"
+
+client:
+sending seq#: 0
+Sending Get initialize msg.
+post packet
+sending post ack
+acking num: 0
+get packet
+Start receiving file.
+type connect - to establish connection 
+get 'filename' - to download the file from server 
+post 'filename' - to upload the file to server 
+Window W - to change the window size 
+disconnect - to close the connection
+quit - to quit the application
+post packet
+sending post ack
+acking num: 0
+data packet
+File received
+acking num: 0
+
+server:
+get packet
+sending seq#: 0
+Sending Post initialize msg.
+acking num: 0
+Received corrupted data, dropped.
+sending seq#: 0
+Re-send Post initialize msg.
+sending seq#: 0
+Re-send Post initialize msg.
+post packet
+postbit set to 1
+sending seq#: 0
+data packet
+Received Data ACK Num: 0
+moving window
+poping buffer
+
+type "post small.txt"
+
+client:
+sending seq#: 0
+Sending Post initialize msg.
+post packet
+postbit set to 1
+sending seq#: 0
+data packet
+Received Data ACK Num: 0
+moving window
+poping buffer
+data packet
+Received Data ACK Num: 0
+type connect - to establish connection 
+get 'filename' - to download the file from server 
+post 'filename' - to upload the file to server 
+Window W - to change the window size 
+disconnect - to close the connection
+quit - to quit the application
+
+
+server:
+post packet
+sending post ack
+acking num: 0
+data packet
+File received
+acking num: 0
+data packet
+acking num: 0
+
+
+type "window 10"
+
+client:
+Set window size to 10
+type connect - to establish connection 
+get 'filename' - to download the file from server 
+post 'filename' - to upload the file to server 
+Window W - to change the window size 
+disconnect - to close the connection
+quit - to quit the application
+
+type "get mid.txt"
+
+client:
+sending seq#: 0
+Sending Get initialize msg.
+get packet
+Start receiving file.
+post packet
+sending post ack
+acking num: 0
+data packet
+acking num: 1
+data packet
+acking num: 2
+data packet
+acking num: 3
+data packet
+acking num: 4
+type connect - to establish connection 
+get 'filename' - to download the file from server 
+post 'filename' - to upload the file to server 
+Window W - to change the window size 
+disconnect - to close the connection
+quit - to quit the application
+Received corrupted data, dropped.
+Received corrupted data, dropped.
+data packet
+acking num: 5
+data packet
+acking num: 6
+data packet
+acking num: 5
+Received corrupted data, dropped.
+data packet
+acking num: 7
+data packet
+acking num: 7
+data packet
+acking num: 6
+data packet
+acking num: 6
+data packet
+acking num: 7
+data packet
+acking num: 8
+data packet
+acking num: 8
+data packet
+acking num: 8
+data packet
+acking num: 7
+Received corrupted data, dropped.
+data packet
+acking num: 9
+data packet
+acking num: 8
+data packet
+acking num: 9
+data packet
+acking num: 9
+data packet
+acking num: 8
+data packet
+acking num: 9
+data packet
+acking num: 10
+data packet
+acking num: 11
+data packet
+acking num: 12
+data packet
+acking num: 13
+data packet
+acking num: 12
+data packet
+acking num: 13
+data packet
+acking num: 12
+Received corrupted data, dropped.
+data packet
+acking num: 14
+data packet
+acking num: 13
+data packet
+acking num: 14
+data packet
+acking num: 15
+data packet
+acking num: 16
+data packet
+acking num: 17
+data packet
+acking num: 18
+data packet
+acking num: 19
+data packet
+acking num: 20
+data packet
+acking num: 21
+data packet
+acking num: 22
+data packet
+acking num: 21
+data packet
+acking num: 22
+data packet
+acking num: 23
+data packet
+acking num: 24
+data packet
+acking num: 24
+data packet
+acking num: 25
+data packet
+acking num: 24
+data packet
+acking num: 25
+data packet
+acking num: 26
+data packet
+acking num: 27
+data packet
+acking num: 28
+data packet
+acking num: 27
+data packet
+acking num: 28
+data packet
+acking num: 29
+data packet
+acking num: 28
+data packet
+acking num: 28
+data packet
+acking num: 29
+data packet
+acking num: 30
+data packet
+acking num: 31
+data packet
+acking num: 32
+data packet
+acking num: 33
+data packet
+acking num: 34
+Received corrupted data, dropped.
+data packet
+acking num: 34
+data packet
+acking num: 35
+data packet
+acking num: 36
+data packet
+acking num: 37
+data packet
+acking num: 38
+data packet
+acking num: 39
+data packet
+acking num: 38
+data packet
+acking num: 39
+data packet
+acking num: 40
+data packet
+acking num: 41
+data packet
+acking num: 42
+data packet
+acking num: 43
+data packet
+acking num: 44
+data packet
+acking num: 45
+data packet
+acking num: 44
+data packet
+acking num: 45
+data packet
+acking num: 45
+data packet
+acking num: 45
+data packet
+acking num: 46
+data packet
+acking num: 47
+data packet
+acking num: 46
+data packet
+acking num: 47
+data packet
+acking num: 47
+data packet
+acking num: 48
+data packet
+acking num: 49
+data packet
+acking num: 50
+data packet
+acking num: 50
+data packet
+acking num: 49
+data packet
+acking num: 50
+data packet
+acking num: 51
+data packet
+acking num: 52
+data packet
+acking num: 53
+data packet
+acking num: 53
+data packet
+acking num: 53
+data packet
+acking num: 52
+data packet
+acking num: 53
+data packet
+acking num: 53
+Received corrupted data, dropped.
+data packet
+acking num: 53
+data packet
+acking num: 54
+data packet
+acking num: 55
+data packet
+acking num: 56
+data packet
+acking num: 57
+data packet
+acking num: 58
+data packet
+acking num: 59
+data packet
+acking num: 60
+data packet
+acking num: 61
+data packet
+acking num: 62
+data packet
+acking num: 63
+data packet
+acking num: 62
+data packet
+acking num: 63
+data packet
+acking num: 64
+data packet
+acking num: 63
+data packet
+acking num: 64
+data packet
+acking num: 65
+data packet
+acking num: 65
+data packet
+acking num: 66
+data packet
+acking num: 65
+data packet
+acking num: 66
+data packet
+acking num: 67
+Received corrupted data, dropped.
+data packet
+acking num: 67
+data packet
+acking num: 66
+data packet
+acking num: 67
+Received corrupted data, dropped.
+data packet
+acking num: 67
+data packet
+acking num: 68
+data packet
+acking num: 69
+data packet
+acking num: 68
+data packet
+acking num: 69
+data packet
+acking num: 70
+data packet
+acking num: 69
+data packet
+acking num: 70
+Received corrupted data, dropped.
+data packet
+acking num: 71
+data packet
+acking num: 70
+data packet
+acking num: 71
+data packet
+acking num: 72
+data packet
+acking num: 73
+Received corrupted data, dropped.
+data packet
+acking num: 73
+data packet
+acking num: 72
+data packet
+acking num: 73
+data packet
+acking num: 74
+data packet
+acking num: 73
+data packet
+acking num: 74
+Received corrupted data, dropped.
+data packet
+acking num: 74
+data packet
+acking num: 75
+data packet
+acking num: 76
+data packet
+acking num: 77
+data packet
+acking num: 78
+data packet
+acking num: 78
+data packet
+acking num: 79
+Received corrupted data, dropped.
+data packet
+acking num: 79
+data packet
+acking num: 79
+data packet
+acking num: 78
+data packet
+acking num: 79
+data packet
+acking num: 80
+data packet
+acking num: 79
+data packet
+acking num: 80
+data packet
+acking num: 80
+Received corrupted data, dropped.
+Received corrupted data, dropped.
+data packet
+acking num: 80
+data packet
+acking num: 81
+data packet
+acking num: 82
+data packet
+acking num: 83
+Received corrupted data, dropped.
+data packet
+acking num: 84
+data packet
+acking num: 85
+data packet
+acking num: 86
+data packet
+acking num: 86
+data packet
+acking num: 86
+data packet
+acking num: 87
+data packet
+acking num: 86
+data packet
+acking num: 87
+data packet
+acking num: 88
+data packet
+acking num: 88
+data packet
+acking num: 88
+data packet
+acking num: 88
+data packet
+acking num: 89
+Received corrupted data, dropped.
+data packet
+acking num: 89
+data packet
+acking num: 90
+data packet
+acking num: 91
+data packet
+acking num: 92
+data packet
+acking num: 91
+data packet
+acking num: 92
+data packet
+acking num: 93
+data packet
+acking num: 94
+data packet
+acking num: 93
+data packet
+acking num: 94
+data packet
+acking num: 95
+data packet
+acking num: 96
+data packet
+acking num: 97
+data packet
+acking num: 98
+data packet
+acking num: 98
+data packet
+acking num: 99
+data packet
+acking num: 100
+data packet
+acking num: 101
+data packet
+acking num: 102
+data packet
+acking num: 103
+data packet
+acking num: 104
+data packet
+acking num: 105
+data packet
+acking num: 105
+data packet
+acking num: 104
+data packet
+acking num: 106
+data packet
+acking num: 105
+data packet
+acking num: 106
+data packet
+acking num: 107
+data packet
+acking num: 106
+data packet
+acking num: 107
+data packet
+acking num: 108
+data packet
+acking num: 107
+data packet
+acking num: 108
+data packet
+acking num: 109
+data packet
+acking num: 108
+data packet
+acking num: 109
+data packet
+acking num: 108
+data packet
+acking num: 109
+data packet
+acking num: 110
+data packet
+acking num: 111
+data packet
+acking num: 112
+data packet
+acking num: 113
+data packet
+acking num: 114
+data packet
+acking num: 114
+data packet
+acking num: 115
+data packet
+acking num: 114
+data packet
+acking num: 115
+data packet
+acking num: 114
+data packet
+acking num: 114
+data packet
+acking num: 115
+data packet
+acking num: 114
+data packet
+acking num: 116
+data packet
+acking num: 117
+data packet
+acking num: 116
+data packet
+acking num: 117
+data packet
+acking num: 117
+data packet
+acking num: 118
+data packet
+acking num: 118
+data packet
+acking num: 119
+data packet
+acking num: 120
+data packet
+acking num: 120
+data packet
+acking num: 121
+data packet
+acking num: 121
+data packet
+acking num: 121
+data packet
+acking num: 122
+data packet
+File received
+acking num: 123
+data packet
+acking num: 123
+
+server:
+get packet
+sending seq#: 0
+ acking num: 0
+Sending Post initialize msg.
+post packet
+postbit set to 1
+sending seq#: 1
+sending seq#: 2
+data packet
+Received Data ACK Num: 1
+moving window
+poping buffer
+sending seq#: 3
+data packet
+Received Data ACK Num: 2
+moving window
+poping buffer
+sending seq#: 4
+data packet
+Received Data ACK Num: 3
+moving window
+poping buffer
+ sending seq#: 5
+data packet
+Received Data ACK Num: 4
+moving window
+poping buffer
+ sending seq#: 6
+sending seq#: 5
+sending seq#: 6
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 6
+sending seq#: 5
+sending seq#: 6
+data packet
+Received Data ACK Num: 5
+moving window
+poping buffer
+ sending seq#: 7
+data packet
+Received Data ACK Num: 7
+sending seq#: 6
+sending seq#: 7
+Received corrupted data, dropped.
+sending seq#: 6
+sending seq#: 7
+data packet
+Received Data ACK Num: 6
+moving window
+poping buffer
+sending seq#: 8
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 6
+data packet
+Received Data ACK Num: 8
+sending seq#: 7
+sending seq#: 8
+data packet
+Received Data ACK Num: 8
+data packet
+Received Data ACK Num: 8
+sending seq#: 7
+sending seq#: 8
+data packet
+Received Data ACK Num: 7
+moving window
+poping buffer
+ sending seq#: 9
+Received corrupted data, dropped.
+sending seq#: 8
+sending seq#: 9
+data packet
+Received Data ACK Num: 9
+sending seq#: 8
+sending seq#: 9
+sending seq#: 8
+sending seq#: 9
+data packet
+Received Data ACK Num: 8
+moving window
+poping buffer
+sending seq#: 10
+data packet
+Received Data ACK Num: 9
+moving window
+poping buffer
+ sending seq#: 11
+data packet
+Received Data ACK Num: 10
+moving window
+poping buffer
+sending seq#: 12
+data packet
+Received Data ACK Num: 11
+moving window
+poping buffer
+sending seq#: 13
+data packet
+Received Data ACK Num: 13
+Received corrupted data, dropped.
+sending seq#: 12
+sending seq#: 13
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 13
+sending seq#: 12
+sending seq#: 13
+data packet
+Received Data ACK Num: 12
+moving window
+poping buffer
+ sending seq#: 14
+data packet
+Received Data ACK Num: 14
+sending seq#: 13
+sending seq#: 14
+data packet
+Received Data ACK Num: 13
+moving window
+poping buffer
+ sending seq#: 15
+data packet
+Received Data ACK Num: 14
+moving window
+poping buffer
+ sending seq#: 16
+data packet
+Received Data ACK Num: 15
+moving window
+poping buffer
+ sending seq#: 17
+data packet
+Received Data ACK Num: 15
+data packet
+Received Data ACK Num: 16
+moving window
+poping buffer
+sending seq#: 18
+data packet
+Received Data ACK Num: 17
+moving window
+poping buffer
+ sending seq#: 19
+data packet
+Received Data ACK Num: 18
+moving window
+poping buffer
+sending seq#: 20
+data packet
+Received Data ACK Num: 19
+moving window
+poping buffer
+ sending seq#: 21
+data packet
+Received Data ACK Num: 20
+moving window
+poping buffer
+ sending seq#: 22
+data packet
+Received Data ACK Num: 22
+data packet
+Received Data ACK Num: 22
+sending seq#: 21
+sending seq#: 22
+data packet
+Received Data ACK Num: 21
+moving window
+poping buffer
+ sending seq#: 23
+data packet
+Received Data ACK Num: 22
+moving window
+poping buffer
+ sending seq#: 24
+data packet
+Received Data ACK Num: 24
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 23
+moving window
+poping buffer
+sending seq#: 25
+Received corrupted data, dropped.
+sending seq#: 24
+sending seq#: 25
+data packet
+Received Data ACK Num: 24
+moving window
+poping buffer
+ sending seq#: 26
+data packet
+Received Data ACK Num: 25
+moving window
+poping buffer
+ sending seq#: 27
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 26
+moving window
+poping buffer
+sending seq#: 28
+data packet
+Received Data ACK Num: 28
+sending seq#: 27
+sending seq#: 28
+data packet
+Received Data ACK Num: 28
+data packet
+Received Data ACK Num: 28
+data packet
+Received Data ACK Num: 27
+moving window
+poping buffer
+ sending seq#: 29
+data packet
+Received Data ACK Num: 29
+sending seq#: 28
+sending seq#: 29
+data packet
+Received Data ACK Num: 28
+moving window
+poping buffer
+sending seq#: 30
+data packet
+Received Data ACK Num: 28
+data packet
+Received Data ACK Num: 29
+moving window
+poping buffer
+sending seq#: 31
+data packet
+Received Data ACK Num: 30
+moving window
+poping buffersending seq#: 32
+
+data packet
+Received Data ACK Num: 31
+moving window
+poping buffer
+ sending seq#: 33
+data packet
+Received Data ACK Num: 32
+moving window
+poping buffer
+ sending seq#: 34
+data packet
+Received Data ACK Num: 32
+data packet
+Received Data ACK Num: 33
+moving window
+poping buffer
+sending seq#: 35
+data packet
+Received Data ACK Num: 34
+moving window
+poping buffer
+sending seq#: 36
+data packet
+Received Data ACK Num: 34
+data packet
+Received Data ACK Num: 34
+sending seq#: 35
+sending seq#: 36
+data packet
+Received Data ACK Num: 35
+moving window
+poping buffer
+sending seq#: 37
+data packet
+Received Data ACK Num: 36
+moving window
+poping buffer
+sending seq#: 38
+data packet
+Received Data ACK Num: 35
+data packet
+Received Data ACK Num: 38
+data packet
+Received Data ACK Num: 37
+moving window
+poping buffer
+sending seq#: 39
+Received corrupted data, dropped.
+sending seq#: 38
+sending seq#: 39
+data packet
+Received Data ACK Num: 38
+moving window
+poping buffer
+ sending seq#: 40
+data packet
+Received Data ACK Num: 39
+moving window
+poping buffer
+sending seq#: 41
+data packet
+Received Data ACK Num: 40
+moving window
+poping buffer
+sending seq#: 42
+data packet
+Received Data ACK Num: 39
+data packet
+Received Data ACK Num: 41
+moving window
+poping buffer
+ sending seq#: 43
+data packet
+Received Data ACK Num: 42
+moving window
+poping buffer
+sending seq#: 44
+data packet
+Received Data ACK Num: 43
+moving window
+poping buffer
+sending seq#: 45
+data packet
+Received Data ACK Num: 45
+sending seq#: 44
+sending seq#: 45
+data packet
+Received Data ACK Num: 44
+moving window
+poping buffer
+ sending seq#: 46
+data packet
+Received Data ACK Num: 45
+moving window
+poping buffer
+sending seq#: 47
+data packet
+Received Data ACK Num: 45
+data packet
+Received Data ACK Num: 45
+sending seq#: 46
+sending seq#: 47
+data packet
+Received Data ACK Num: 47
+sending seq#: 46
+sending seq#: 47
+data packet
+Received Data ACK Num: 47
+data packet
+Received Data ACK Num: 46
+moving window
+poping buffer
+sending seq#: 48
+sending seq#: 47
+sending seq#: 48
+data packet
+Received Data ACK Num: 47
+moving window
+poping buffer
+sending seq#: 49
+data packet
+Received Data ACK Num: 47
+data packet
+Received Data ACK Num: 48
+moving window
+poping buffer
+ sending seq#: 50
+data packet
+Received Data ACK Num: 50
+Received corrupted data, dropped.
+sending seq#: 49
+sending seq#: 50
+data packet
+Received Data ACK Num: 50
+sending seq#: 49
+sending seq#: 50
+data packet
+Received Data ACK Num: 49
+moving window
+poping buffer
+sending seq#: 51
+data packet
+Received Data ACK Num: 50
+moving window
+poping buffer
+sending seq#: 52
+data packet
+Received Data ACK Num: 51
+moving window
+poping buffer
+ sending seq#: 53
+data packet
+Received Data ACK Num: 53
+data packet
+Received Data ACK Num: 53
+sending seq#: 52
+sending seq#: 53
+data packet
+Received Data ACK Num: 53
+sending seq#: 52
+sending seq#: 53
+data packet
+Received Data ACK Num: 52
+moving window
+poping buffer
+sending seq#: 54
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 53
+moving window
+poping buffer
+sending seq#: 55
+data packet
+Received Data ACK Num: 53
+sending seq#: 54
+sending seq#: 55
+data packet
+Received Data ACK Num: 54
+moving window
+poping buffer
+sending seq#: 56
+data packet
+Received Data ACK Num: 55
+moving window
+poping buffer
+ sending seq#: 57
+data packet
+Received Data ACK Num: 56
+moving window
+poping buffer
+sending seq#: 58
+data packet
+Received Data ACK Num: 57
+moving window
+poping buffer
+sending seq#: 59
+data packet
+Received Data ACK Num: 58
+moving window
+poping buffer
+sending seq#: 60
+data packet
+Received Data ACK Num: 59
+moving window
+poping buffer
+ sending seq#: 61
+data packet
+Received Data ACK Num: 60
+moving window
+poping buffer
+ sending seq#: 62
+data packet
+Received Data ACK Num: 61
+moving window
+poping buffer
+sending seq#: 63
+Received corrupted data, dropped.
+Received corrupted data, dropped.
+sending seq#: 62
+sending seq#: 63
+data packet
+Received Data ACK Num: 63
+data packet
+Received Data ACK Num: 62
+moving window
+poping buffer
+sending seq#: 64
+data packet
+Received Data ACK Num: 64
+data packet
+Received Data ACK Num: 64
+sending seq#: 63
+sending seq#: 64
+data packet
+Received Data ACK Num: 63
+moving window
+poping buffer
+sending seq#: 65
+data packet
+Received Data ACK Num: 64
+moving window
+poping buffer
+ sending seq#: 66
+data packet
+Received Data ACK Num: 66
+sending seq#: 65
+sending seq#: 66
+data packet
+Received Data ACK Num: 65
+moving window
+poping buffer
+sending seq#: 67
+Received corrupted data, dropped.
+sending seq#: 66
+sending seq#: 67
+data packet
+Received Data ACK Num: 67
+sending seq#: 66
+sending seq#: 67
+data packet
+Received Data ACK Num: 66
+moving window
+poping buffer
+ sending seq#: 68
+sending seq#: 67
+sending seq#: 68
+data packet
+Received Data ACK Num: 67
+moving window
+poping buffer
+ sending seq#: 69
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 69
+sending seq#: 68
+sending seq#: 69
+data packet
+Received Data ACK Num: 68
+moving window
+poping buffer
+sending seq#: 70
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 70
+sending seq#: 69
+sending seq#: 70
+data packet
+Received Data ACK Num: 69
+moving window
+poping buffer
+ sending seq#: 71
+Received corrupted data, dropped.
+sending seq#: 70
+sending seq#: 71
+data packet
+Received Data ACK Num: 71
+sending seq#: 70
+sending seq#: 71
+data packet
+Received Data ACK Num: 70
+moving window
+poping buffersending seq#: 72
+
+data packet
+Received Data ACK Num: 71
+moving window
+poping buffer
+ sending seq#: 73
+data packet
+Received Data ACK Num: 73
+sending seq#: 72
+sending seq#: 73
+data packet
+Received Data ACK Num: 73
+sending seq#: 72
+sending seq#: 73
+data packet
+Received Data ACK Num: 72
+moving window
+poping buffer
+sending seq#: 74
+data packet
+Received Data ACK Num: 74
+sending seq#: 73
+sending seq#: 74
+data packet
+Received Data ACK Num: 73
+moving window
+poping buffer
+sending seq#: 75
+data packet
+Received Data ACK Num: 74
+moving window
+poping buffer
+sending seq#: 76
+data packet
+Received Data ACK Num: 74
+data packet
+Received Data ACK Num: 74
+sending seq#: 75
+sending seq#: 76
+data packet
+Received Data ACK Num: 75
+moving window
+poping buffersending seq#: 77
+
+data packet
+Received Data ACK Num: 76
+moving window
+poping buffer
+sending seq#: 78
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 78
+data packet
+Received Data ACK Num: 77
+moving window
+poping buffer
+sending seq#: 79
+data packet
+Received Data ACK Num: 79
+sending seq#: 78
+sending seq#: 79
+sending seq#: 78
+sending seq#: 79
+data packet
+Received Data ACK Num: 79
+sending seq#: 78
+sending seq#: 79
+data packet
+Received Data ACK Num: 79
+data packet
+Received Data ACK Num: 78
+moving window
+poping buffer
+sending seq#: 80
+data packet
+Received Data ACK Num: 80
+sending seq#: 79
+sending seq#: 80
+data packet
+Received Data ACK Num: 79
+moving window
+poping buffer
+ sending seq#: 81
+data packet
+Received Data ACK Num: 80
+moving window
+poping buffer
+sending seq#: 82
+data packet
+Received Data ACK Num: 80
+sending seq#: 81
+sending seq#: 82
+Received corrupted data, dropped.
+sending seq#: 81
+sending seq#: 82
+data packet
+Received Data ACK Num: 81
+moving window
+poping buffer
+ sending seq#: 83
+data packet
+Received Data ACK Num: 82
+moving window
+poping buffer
+ sending seq#: 84
+data packet
+Received Data ACK Num: 83
+moving window
+poping buffer
+sending seq#: 85
+sending seq#: 84
+sending seq#: 85
+data packet
+Received Data ACK Num: 84
+moving window
+poping buffer
+sending seq#: 86
+data packet
+Received Data ACK Num: 86
+data packet
+Received Data ACK Num: 85
+moving window
+poping buffer
+sending seq#: 87
+sending seq#: 86
+sending seq#: 87
+sending seq#: 86
+sending seq#: 87
+data packet
+Received Data ACK Num: 87
+sending seq#: 86
+sending seq#: 87
+data packet
+Received Data ACK Num: 86
+moving window
+poping buffer
+sending seq#: 88
+data packet
+Received Data ACK Num: 87
+moving window
+poping buffer
+sending seq#: 89
+data packet
+Received Data ACK Num: 88
+moving window
+poping buffer
+sending seq#: 90
+data packet
+Received Data ACK Num: 88
+sending seq#: 89
+sending seq#: 90
+data packet
+Received Data ACK Num: 88
+sending seq#: 89
+sending seq#: 90
+data packet
+Received Data ACK Num: 88
+sending seq#: 89
+sending seq#: 90
+data packet
+Received Data ACK Num: 89
+moving window
+poping buffer
+sending seq#: 91
+data packet
+Received Data ACK Num: 89
+sending seq#: 90
+sending seq#: 91
+data packet
+Received Data ACK Num: 91
+data packet
+Received Data ACK Num: 90
+moving window
+poping buffer
+ sending seq#: 92
+data packet
+Received Data ACK Num: 92
+sending seq#: 91
+sending seq#: 92
+data packet
+Received Data ACK Num: 91
+moving window
+poping buffer
+ sending seq#: 93
+data packet
+Received Data ACK Num: 93
+data packet
+Received Data ACK Num: 92
+moving window
+poping buffer
+ sending seq#: 94
+data packet
+Received Data ACK Num: 94
+sending seq#: 93
+sending seq#: 94
+data packet
+Received Data ACK Num: 93
+moving window
+poping buffer
+ sending seq#: 95
+data packet
+Received Data ACK Num: 94
+moving window
+poping buffer
+ sending seq#: 96
+data packet
+Received Data ACK Num: 93
+data packet
+Received Data ACK Num: 95
+moving window
+poping buffer
+ sending seq#: 97
+data packet
+Received Data ACK Num: 96
+moving window
+poping buffer
+ sending seq#: 98
+data packet
+Received Data ACK Num: 97
+moving window
+poping buffer
+ sending seq#: 99
+data packet
+Received Data ACK Num: 97
+data packet
+Received Data ACK Num: 98
+moving window
+poping buffer
+ sending seq#: 100
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 99
+moving window
+poping buffer
+sending seq#: 101
+data packet
+Received Data ACK Num: 100
+moving window
+poping buffer
+sending seq#: 102
+data packet
+Received Data ACK Num: 101
+moving window
+poping buffer
+sending seq#: 103
+data packet
+Received Data ACK Num: 102
+moving window
+poping buffer
+ sending seq#: 104
+data packet
+Received Data ACK Num: 104
+data packet
+Received Data ACK Num: 103
+moving window
+poping buffer
+ sending seq#: 105
+sending seq#: 104
+sending seq#: 105
+data packet
+Received Data ACK Num: 105
+data packet
+Received Data ACK Num: 104
+moving window
+poping buffer
+sending seq#: 106
+data packet
+Received Data ACK Num: 106
+sending seq#: 105
+sending seq#: 106
+data packet
+Received Data ACK Num: 105
+moving window
+poping buffer
+sending seq#: 107
+data packet
+Received Data ACK Num: 107
+Received corrupted data, dropped.
+sending seq#: 106
+sending seq#: 107
+data packet
+Received Data ACK Num: 106
+moving window
+poping buffer
+sending seq#: 108
+data packet
+Received Data ACK Num: 108
+sending seq#: 107
+sending seq#: 108
+data packet
+Received Data ACK Num: 108
+data packet
+Received Data ACK Num: 108
+data packet
+Received Data ACK Num: 107
+moving window
+poping buffer
+sending seq#: 109
+sending seq#: 108
+sending seq#: 109
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 109
+sending seq#: 108
+sending seq#: 109
+data packet
+Received Data ACK Num: 108
+moving window
+poping buffer
+ sending seq#: 110
+data packet
+Received Data ACK Num: 109
+moving window
+poping buffer
+sending seq#: 111
+data packet
+Received Data ACK Num: 110
+moving window
+poping buffer
+ sending seq#: 112
+data packet
+Received Data ACK Num: 111
+moving window
+poping buffer
+ sending seq#: 113
+data packet
+Received Data ACK Num: 112
+moving window
+poping buffer
+ sending seq#: 114
+data packet
+Received Data ACK Num: 114
+data packet
+Received Data ACK Num: 113
+moving window
+poping buffersending seq#: 115
+
+Received corrupted data, dropped.
+data packet
+Received Data ACK Num: 115
+sending seq#: 114
+sending seq#: 115
+data packet
+Received Data ACK Num: 115
+Received corrupted data, dropped.
+sending seq#: 114
+sending seq#: 115
+sending seq#: 114
+sending seq#: 115
+data packet
+Received Data ACK Num: 114
+moving window
+poping buffer
+ sending seq#: 116
+data packet
+Received Data ACK Num: 115
+moving window
+poping buffer
+ sending seq#: 117
+data packet
+Received Data ACK Num: 114
+data packet
+Received Data ACK Num: 117
+sending seq#: 116
+sending seq#: 117
+data packet
+Received Data ACK Num: 116
+moving window
+poping buffer
+sending seq#: 118
+data packet
+Received Data ACK Num: 117
+moving window
+poping buffer
+sending seq#: 119
+data packet
+Received Data ACK Num: 117
+data packet
+Received Data ACK Num: 118
+moving window
+poping buffer
+sending seq#: 120
+data packet
+Received Data ACK Num: 118
+data packet
+Received Data ACK Num: 117
+data packet
+Received Data ACK Num: 119
+moving window
+poping buffer
+sending seq#: 121
+data packet
+Received Data ACK Num: 120
+moving window
+poping buffer
+sending seq#: 122
+data packet
+Received Data ACK Num: 120
+data packet
+Received Data ACK Num: 120
+data packet
+Received Data ACK Num: 121
+moving window
+poping buffer
+sending seq#: 123
+data packet
+Received Data ACK Num: 121
+data packet
+Received Data ACK Num: 121
+data packet
+Received Data ACK Num: 121
+sending seq#: 122
+set end of file
+sending seq#: 123
+data packet
+Received Data ACK Num: 122
+moving window
+poping buffer
+Received corrupted data, dropped.
+set end of file
+sending seq#: 123
+data packet
+Received Data ACK Num: 123
+moving window
+poping buffer
+
+type "disconnect" (close connection)
+
+client:
+sending seq#: 0
+control packet
+sending seq#: 1
+Received first FIN ack, sending second msg[FIN=0] cnt bit set to 3
+control packet
+cnt bit set to 0
+Connection Closed
+True
+type connect - to establish connection 
+get 'filename' - to download the file from server 
+post 'filename' - to upload the file to server 
+Window W - to change the window size 
+disconnect - to close the connection
+quit - to quit the application
+
+server:
+control packet
+Received connection closing msg [FIN=1] cntbit set to 3
+acking num: 0
+control packet
+acking num: 0
+control packet
+cnt bit set to 0
+acking num: 1
+Connection Close
+
+type "quit"
+
+client terminate
+
+type "terminate" (close server)
+
+server:
+sending seq#: 0
+Connection Closed
+True
+Server is closed

@@ -38,20 +38,20 @@ class RxP:
     #  cntBit = 0 : listening for connection 
     #  cntBit = 1 : received first SYN = 1 packet
     def connect(self):
-        print 'start to connect'
+        print 'Start to connect'
         self.header.cnt = True
         self.header.syn = True
         self.header.seqNum = 0
         self.send(None)
         self.rxpTimer.start()
-        print 'Send first msg[SYN=1].'
+        print 'Send first SYN segment with SYN = 1'
 
         while self.cntBit == 0:
             if self.rxpTimer.isTimeout():
                 self.header.syn = True
                 self.header.seqNum = 0
                 self.send(None)
-                print 'Re-Send first msg[SYN=1].'
+                print 'Resend first SYN segment with SYN = 1'
                 self.rxpTimer.start()
 
         while self.cntBit == 1:
@@ -59,7 +59,7 @@ class RxP:
                 self.header.syn = False
                 self.header.seqNum = 1
                 self.send(None)
-                print 'Re-Send first msg[SYN=0].'
+                print 'Resend first SYN segment with SYN = 0'
                 self.rxpTimer.start()
 
         self.header.cnt = False
@@ -72,6 +72,7 @@ class RxP:
         self.header.fin = True
         self.header.seqNum = 0
         self.send(None)
+        print 'Send first FIN segment with FIN = 1'
         self.rxpTimer.start()
 
         while self.cntBit == 2:
@@ -79,7 +80,7 @@ class RxP:
                 self.header.fin = True
                 self.header.seqNum = 0
                 self.send(None)
-                print 'Re-Send first msg[FIN=1]'
+                print 'Resend first FIN segment with FIN = 1'
                 self.rxpTimer.start()
 
         while self.cntBit == 3:
@@ -87,11 +88,11 @@ class RxP:
                 self.header.fin = False
                 self.header.seqNum = 1
                 self.send(None)
-                print 'Re-Send first msg[FIN=0]'
+                print 'Resend first FIN segment with FIN = 0'
                 self.rxpTimer.start()
 
         self.header.cnt = False
-        print 'Connection Closed'
+        print '>>>>>>>>>Connection Closed<<<<<<<<<<<<'
         self.reset()
 
     # Listening the incoming request including connect request, get, post, and
@@ -109,19 +110,19 @@ class RxP:
             if self.validateChecksum(packet):
                 tempHeader = self.getHeader(packet)
                 if tempHeader.cnt:
-                    print 'control packet'
+                    print 'Received control packet'
                     self.recvCntPkt(packet)
                 elif tempHeader.get:
-                    print 'get packet'
+                    print 'Received get packet'
                     self.recvGetPkt(packet)
                 elif tempHeader.post:
-                    print 'post packet'
+                    print 'Received post packet'
                     self.recvPostPkt(packet)
                 elif tempHeader.dat:
-                    print 'data packet'
+                    print 'Received data packet'
                     self.recvDataPkt(packet)
             else:
-                print 'Received corrupted data, dropped.'
+                print 'Received corrupted data, packet dropped.'
 
     # reset all setting
     def reset(self):
@@ -143,7 +144,7 @@ class RxP:
             self.header.seqNum = 0
             self.send(nameBytes)
             self.header.get = False
-            print 'Sending Get initialize msg.'
+            print 'Sending Get request'
             self.rxpTimer.start()
 
             while self.getBit == 0:
@@ -152,12 +153,12 @@ class RxP:
                     self.header.seqNum = 0
                     self.send(nameBytes)
                     self.header.get = False
-                    print 'Re-send Get initialize msg.'
+                    print 'Resend Get request'
                     self.rxpTimer.start()
-            print 'Start receiving file.'
+            print 'Start to receive file'
 
         else:
-            print 'No connection'
+            print 'No connection found'
 
     # Protocol send incoming data into Datagrams through UDP socket the data
     # need to be add check sum before sending
@@ -199,7 +200,7 @@ class RxP:
             self.header.seqNum = 0
             self.send(nameBytes)
             self.header.post = False
-            print 'Sending Post initialize msg.'
+            print 'Sending Post request'
             self.rxpTimer.start()
 
             while self.postBit == 0 and not event.stopped():
@@ -208,14 +209,18 @@ class RxP:
                     self.header.seqNum = 0
                     self.send(nameBytes)
                     self.header.post = False
-                    print 'Re-send Post initialize msg.'
+                    print 'Resend Post request'
                     self.rxpTimer.start()
             if event.stopped():
                 print 'Post file interrupted'
                 return
 
             self.transTimer.start()
-            readFile = open(filename, "rb")
+            try:
+                readFile = open(filename, "rb")
+            except:
+                print ("file not found. Please type in correct filename")
+                sys.exit()
             fileBytes = bytearray(readFile.read())
             bufferSize = RxP.dataMax - RxPHeader.headerLen
             fileSize = len(fileBytes)
@@ -262,7 +267,6 @@ class RxP:
                     self.buffer.append(data)
 
             readFile.close()
-            transTime = self.transTimer.time
             self.postBit = 0
             self.getBit = 0
             self.header.end = False
@@ -270,7 +274,7 @@ class RxP:
             if event.stopped():
                 print 'Post file interrupted'
         else:
-            print 'No connection'
+            print 'No connection found'
 
     # Handle received data transmission packet.
     def recvDataPkt(self, packet):
@@ -279,11 +283,9 @@ class RxP:
             print 'Received Data ACK Num: %d' % tmpHeader.ackNum
 
             if tmpHeader.ackNum == self.rxpWindow.startWindow:
-                print 'moving window'
                 self.rxpTimer.start()
                 self.rxpWindow.startWindow += 1
                 self.rxpWindow.endWindow += 1
-                print 'poping buffer'
                 self.buffer.popleft()
         else:
             if self.output == None:
@@ -297,7 +299,7 @@ class RxP:
 
                     if tmpHeader.end:
                         self.output.close()
-                        print 'File received'
+                        print 'File transfer completed'
 
                 seq = tmpHeader.seqNum
                 if self.recvFileIndex > seq:
@@ -344,7 +346,11 @@ class RxP:
             else:
                 content = packet[RxPHeader.headerLen:]
                 filename = self.bytesToString(content)
-                self.output = open("./down/" + filename, "ab")
+                try:
+                    self.output = open("./down/" + filename, "ab")
+                except:
+                    print ("file not found. Please type in correct filename")
+                    sys.exit()
                 self.header.post = True
                 print 'sending post ack'
                 self.sendAck()
