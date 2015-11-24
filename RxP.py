@@ -229,7 +229,6 @@ class RxP:
                     for i in range(len(self.buffer)):
                         if fileIndex >= fileSize:
                             if i == len(self.buffer) - 1:
-                                print 'set end of file'
                                 self.header.end = True
                         seq = self.rxpWindow.nextToSend
                         self.header.seqNum = seq
@@ -341,7 +340,6 @@ class RxP:
 
         if self.postBit == 0:
             if tmpHeader.ack:
-                print 'postbit set to 1'
                 self.postBit = 1
             else:
                 content = packet[RxPHeader.headerLen:]
@@ -365,7 +363,6 @@ class RxP:
                 print 'Received connection initializing msg [SYN=1]'
                 self.header.cnt = True
                 self.sendAck()
-                print 'cntbit set to 1'
                 self.cntBit = 1
             elif self.header.syn and tmpHeader.ack:
                 self.header.syn = False
@@ -380,7 +377,6 @@ class RxP:
                 self.header.cnt = False
         elif self.cntBit == 1:
             if not tmpHeader.ack and not tmpHeader.syn:
-                print 'cntbit set to 22222'
                 self.cntBit = 2
                 self.sendAck()
                 self.header.cnt = False
@@ -391,7 +387,6 @@ class RxP:
                 self.sendAck()
                 self.header.cnt = False
             if tmpHeader.ack:
-                print 'cntbit set to 2'
                 self.cntBit = 2
         elif self.cntBit == 2:
             if tmpHeader.fin:
@@ -411,7 +406,6 @@ class RxP:
                 self.header.cnt = False
         elif self.cntBit == 3:
             if not tmpHeader.ack and not tmpHeader.fin:
-                print 'cnt bit set to 000000'
                 self.cntBit = 0
                 self.sendAck()
                 self.header.cnt = False
@@ -422,7 +416,6 @@ class RxP:
                 self.sendAck()
                 self.header.cnt = False
             elif tmpHeader.ack:
-                print 'cnt bit set to 0'
                 self.cntBit = 0
 
     # set the window size for protocol
