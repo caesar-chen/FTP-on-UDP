@@ -27,7 +27,6 @@ class RxP:
         self.postBit = 0  # post file
         self.rxpWindow = RxPWindow()
         self.rxpTimer = RxPTimer()
-        self.transTimer = RxPTimer()
         self.buffer = deque()  # buffer to store data
         self.output = None  # output file
         self.recvFileIndex = 0  # current index of receiving file
@@ -59,10 +58,11 @@ class RxP:
                 self.header.syn = False
                 self.header.seqNum = 1
                 self.send(None)
-                print 'Resend first SYN segment with SYN = 0'
+                print 'Resend segment with SYN = 0'
                 self.rxpTimer.start()
 
         self.header.cnt = False
+        print '>>>>>>>>>>>Connection established<<<<<<<<<<<<<'
 
     #  When receive "disconnect" command,it will close connection. 
     #  cntBit = 2 : connection established. 
@@ -172,7 +172,7 @@ class RxP:
     # Getting header's ack number and add check sum to this ack number then
     # send new ACK through UDP socket
     def sendAck(self):
-        print 'acking num: %d' %self.header.ackNum
+        print 'acking num: %d' % self.header.ackNum
         self.header.ack = True
         datagram = self.addChecksum(self.header.getHeader())
         self.socket.sendto(datagram, (self.hostAddress, self.netEmuPort))
@@ -215,7 +215,6 @@ class RxP:
                 print 'Post file interrupted'
                 return
 
-            self.transTimer.start()
             try:
                 readFile = open(filename, "rb")
             except:
@@ -270,6 +269,7 @@ class RxP:
             self.postBit = 0
             self.getBit = 0
             self.header.end = False
+            print '>>>>>>>>>>>File transfer completed<<<<<<<<<<<<'
 
             if event.stopped():
                 print 'Post file interrupted'
@@ -299,7 +299,7 @@ class RxP:
 
                     if tmpHeader.end:
                         self.output.close()
-                        print 'File transfer completed'
+                        print '>>>>>>>>>>>>File transfer completed<<<<<<<<<<<<<'
 
                 seq = tmpHeader.seqNum
                 if self.recvFileIndex > seq:
@@ -366,7 +366,7 @@ class RxP:
 
         if self.cntBit == 0:
             if tmpHeader.syn:
-                print 'Received connection initializing msg [SYN=1]'
+                print 'Received connection request SYN segment with SYN = 1'
                 self.header.cnt = True
                 self.sendAck()
                 self.cntBit = 1
@@ -374,7 +374,7 @@ class RxP:
                 self.header.syn = False
                 self.header.seqNum = 1
                 self.send(None)
-                print 'Received first SYN ack, sending second msg[SYN=0]. cnt bit set to 1'
+                print 'Received first SYN ack, sending second msg[SYN=0]'
                 self.cntBit = 1
             elif not tmpHeader.fin and not tmpHeader.ack:
                 print 'server received SYN from client, and sent back ACK to client'
@@ -386,7 +386,7 @@ class RxP:
                 self.cntBit = 2
                 self.sendAck()
                 self.header.cnt = False
-                print 'Connection established'
+                print '>>>>>>>>>>>>Connection established<<<<<<<<<<<<<'
             if tmpHeader.seqNum == 0 and tmpHeader.syn:
                 print 'Second SYN initialization'
                 self.header.cnt = True
@@ -396,7 +396,7 @@ class RxP:
                 self.cntBit = 2
         elif self.cntBit == 2:
             if tmpHeader.fin:
-                print 'Received connection closing msg [FIN=1] cntbit set to 3'
+                print 'Received connection closing request with FIN = 1'
                 self.header.cnt = True
                 self.sendAck()
                 self.cntBit = 3
@@ -404,7 +404,7 @@ class RxP:
                 self.header.fin = False
                 self.header.seqNum = 1
                 self.send(None)
-                print 'Received first FIN ack, sending second msg[FIN=0] cnt bit set to 3'
+                print 'Received first FIN ack, sending second packet with FIN = 0'
                 self.cntBit = 3
             elif not tmpHeader.ack and not tmpHeader.syn:
                 self.header.cnt = True
@@ -416,7 +416,7 @@ class RxP:
                 self.sendAck()
                 self.header.cnt = False
                 self.reset()
-                print 'Connection Close'
+                print '>>>>>>>>>Connection Close<<<<<<<<<<<'
             elif not tmpHeader.seqNum and tmpHeader.fin:
                 self.header.cnt = True
                 self.sendAck()
@@ -428,8 +428,9 @@ class RxP:
     def setWindowSize(self, windowSize):
         if self.cntBit == 2:
             self.rxpWindow.windowSize = windowSize
+            print 'The window size is set to: %d' % windowSize
         else:
-            print 'Please initialize connection first.'
+            print 'Please initialize connection.'
 
     # Convert the ASCII byte[] data into String
     def bytesToString(self, data):
